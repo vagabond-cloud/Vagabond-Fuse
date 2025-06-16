@@ -11,8 +11,9 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["node"]
   },
-  "include": ["packages/*/src/**/*"],
+  "include": ["packages/*/src/**/*", "examples/**/*"],
   "exclude": ["node_modules", "dist", "**/tests/**"]
 }

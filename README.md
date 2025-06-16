@@ -1,148 +1,572 @@
-# Vagabond-Fuse
+# Getting Started with Vagabond-Fuse
 
-A next-generation AI-native social network with dual-feed experience supporting short text and short-form video "Sparks".
+This guide will help you get started with the Vagabond-Fuse (Cross-Chain Self-Sovereign Identity Fabric) framework. We'll cover installation, basic setup, and walk through some common use cases.
 
-## Project Overview
+## Prerequisites
 
-Vagabond-Fuse is building a social platform with:
+Before you begin, ensure you have the following installed:
 
-- Dual-feed experience: Pulse (chronological) & Wave (recommendation)
-- Short text + short-form video "Sparks" (≤15s video)
-- AI-powered creator toolchain for frictionless content creation
-- Real-time engagement and micro-tipping system
+1. **Node.js and pnpm**
 
-## Repository Structure
+   ```bash
+   # Install Node.js (v18 or later)
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+   nvm install 18
+   nvm use 18
 
-- `packages/`: TypeScript packages
+   # Install pnpm
+   npm install -g pnpm@8
+   ```
 
-  - `wallet-kit/`: React-Native + WASM key store
-  - `did-gateway/`: Method-agnostic CRUD for DIDs (did:ion & did:polygon)
-  - `policy-utils/`: JSON-Logic helpers that compile to Rego WASM
+2. **Python and Poetry**
 
-- `services/`: Python services
+   ```bash
+   # Install Python 3.11
+   brew install python@3.11
 
-  - `credential-hub/`: FastAPI service for credential management with SnarkJS
-  - `policy-engine/`: FastAPI service for policy execution with OPA WASM
+   # Install Poetry
+   curl -sSL https://install.python-poetry.org | python3 -
+   ```
 
-- `examples/`: Sample code demonstrating usage of all components
-  - TypeScript examples for each package
-  - Python examples for each service
-  - Integration example showing complete workflow
+3. **Development Tools**
+   - Git
+   - Docker (for local development)
+   - VS Code or your preferred IDE
+   - Postman or similar API testing tool
 
-## Tech Stack
+## Installation
 
-- **Frontend**: Next.js 15 (web), React Native (mobile)
-- **Core APIs**: Go 1.22 + gRPC-Gateway
-- **AI Services**: Python ≥3.11 / PyTorch 2.3 with Triton Inference Server
-- **Data**: PostgreSQL 16 (users, payments) + ScyllaDB (feed cache) + Kafka
-- **Real-Time**: WebSocket + Redis Streams
-- **DevOps**: Kubernetes (GKE), Helm, Argo CD, Linkerd
-- **Observability**: OpenTelemetry, Grafana Cloud, Prometheus
+1. **Clone the Repository**
 
-## Development
+   ```bash
+   git clone https://github.com/vagabond-cloud/Vagabond-Fuse.git
+   cd cs-sif
+   ```
 
-### Prerequisites
+2. **Install Dependencies**
 
-- Node.js (v18+)
-- pnpm (v8+)
-- Python (v3.11+)
-- Poetry (v1.5+)
-- Go 1.22+
+   ```bash
+   # Install TypeScript dependencies
+   pnpm install
 
-### Setup
+   # Install Python dependencies
+   cd services/credential-hub && poetry install && cd ../..
+   cd services/policy-engine && poetry install && cd ../..
+   ```
 
-```bash
-# Install dependencies
-pnpm install
+3. **Build the Project**
+   ```bash
+   pnpm build
+   ```
 
-# Install Python dependencies
-cd services/credential-hub && poetry install && cd ../..
-cd services/policy-engine && poetry install && cd ../..
+## Basic Setup
+
+### 1. Configure Environment
+
+Create a `.env` file in the root directory:
+
+```env
+# Network Configuration
+XRPL_NODE_URL=wss://xrplcluster.com
+ETH_NODE_URL=https://eth-mainnet.alchemyapi.io/v2/your-api-key
+BTC_NODE_URL=https://your-bitcoin-node-url
+
+# Service Configuration
+CREDENTIAL_HUB_PORT=8000
+POLICY_ENGINE_PORT=8001
+
+# Security
+JWT_SECRET=your-secret-key
+ENCRYPTION_KEY=your-encryption-key
+
+# Optional: Xumm API Keys
+XUMM_API_KEY=your-xumm-api-key
+XUMM_API_SECRET=your-xumm-api-secret
 ```
 
-### Commands
+### 2. Start Services
+
+1. **Start Credential Hub**
+
+   ```bash
+   cd services/credential-hub
+   poetry run uvicorn app.main:app --port 8000 --reload
+   ```
+
+2. **Start Policy Engine**
+   ```bash
+   cd services/policy-engine
+   poetry run uvicorn app.main:app --port 8001 --reload
+   ```
+
+### 3. Database Setup with Docker
+
+For local development and testing, you can use Docker to set up the required databases:
+
+1. **PostgreSQL for Credential Storage**
+
+   ```bash
+   # Create a Docker container for PostgreSQL
+   docker run --name cs-sif-postgres \
+     -e POSTGRES_USER=cs_sif \
+     -e POSTGRES_PASSWORD=password \
+     -e POSTGRES_DB=credential_hub \
+     -p 5432:5432 \
+     -d postgres:14
+   ```
+
+2. **MongoDB for Policy Storage**
+
+   ```bash
+   # Create a Docker container for MongoDB
+   docker run --name cs-sif-mongodb \
+     -e MONGO_INITDB_ROOT_USERNAME=cs_sif \
+     -e MONGO_INITDB_ROOT_PASSWORD=password \
+     -p 27017:27017 \
+     -d mongo:5
+   ```
+
+3. **Redis for Caching and Session Management**
+
+   ```bash
+   # Create a Docker container for Redis
+   docker run --name cs-sif-redis \
+     -p 6379:6379 \
+     -d redis:7
+   ```
+
+4. **Clickhouse for Analytics and Metrics**
+
+   ```bash
+   # Create a Docker container for Clickhouse
+   docker run --name cs-sif-clickhouse \
+     -p 8123:8123 \
+     -p 9000:9000 \
+     -e CLICKHOUSE_DB=cs_sif_analytics \
+     -e CLICKHOUSE_USER=cs_sif \
+     -e CLICKHOUSE_PASSWORD=password \
+     -d clickhouse/clickhouse-server:23.3
+   ```
+
+5. **Docker Compose (Alternative Setup)**
+
+   Create a `docker-compose.yml` file in the root directory:
+
+   ```yaml
+   version: '3.8'
+
+   services:
+     postgres:
+       image: postgres:14
+       container_name: cs-sif-postgres
+       environment:
+         POSTGRES_USER: cs_sif
+         POSTGRES_PASSWORD: password
+         POSTGRES_DB: credential_hub
+       ports:
+         - '5432:5432'
+       volumes:
+         - postgres_data:/var/lib/postgresql/data
+
+     mongodb:
+       image: mongo:5
+       container_name: cs-sif-mongodb
+       environment:
+         MONGO_INITDB_ROOT_USERNAME: cs_sif
+         MONGO_INITDB_ROOT_PASSWORD: password
+       ports:
+         - '27017:27017'
+       volumes:
+         - mongo_data:/data/db
+
+     redis:
+       image: redis:7
+       container_name: cs-sif-redis
+       ports:
+         - '6379:6379'
+       volumes:
+         - redis_data:/data
+
+     clickhouse:
+       image: clickhouse/clickhouse-server:23.3
+       container_name: cs-sif-clickhouse
+       environment:
+         CLICKHOUSE_DB: cs_sif_analytics
+         CLICKHOUSE_USER: cs_sif
+         CLICKHOUSE_PASSWORD: password
+       ports:
+         - '8123:8123'
+         - '9000:9000'
+       volumes:
+         - clickhouse_data:/var/lib/clickhouse
+
+   volumes:
+     postgres_data:
+     mongo_data:
+     redis_data:
+     clickhouse_data:
+   ```
+
+   Then start all services with:
+
+   ```bash
+   docker-compose up -d
+   ```
+
+6. **Update Environment Variables**
+
+   Add the following to your `.env` file to connect to these databases:
+
+   ```env
+   # Database Configuration
+   POSTGRES_HOST=localhost
+   POSTGRES_PORT=5432
+   POSTGRES_USER=cs_sif
+   POSTGRES_PASSWORD=password
+   POSTGRES_DB=credential_hub
+
+   MONGODB_URI=mongodb://cs_sif:password@localhost:27017/policy_engine
+
+   REDIS_HOST=localhost
+   REDIS_PORT=6379
+
+   CLICKHOUSE_HOST=localhost
+   CLICKHOUSE_PORT=8123
+   CLICKHOUSE_USER=cs_sif
+   CLICKHOUSE_PASSWORD=password
+   CLICKHOUSE_DB=cs_sif_analytics
+   ```
+
+## Basic Usage
+
+### 1. Creating a DID
+
+```typescript
+import { DIDGateway, DIDMethod } from '@cs-sif/did-gateway';
+import { WalletKit, KeyType } from '@cs-sif/wallet-kit';
+
+async function createDID() {
+  // Initialize wallet
+  const wallet = new WalletKit({
+    storageOptions: {
+      secureStorage: true,
+      backupEnabled: true,
+    },
+  });
+
+  // Generate a key pair
+  const keyPair = await wallet.generateKey(KeyType.SECP256K1);
+
+  // Create DID Gateway instance
+  const gateway = new DIDGateway();
+
+  // Create a DID document
+  const document = {
+    verificationMethod: [
+      {
+        id: '#key-1',
+        type: 'EcdsaSecp256k1VerificationKey2019',
+        controller: '#id',
+        publicKeyJwk: JSON.parse(await wallet.exportKey(keyPair.id, 'JWK')),
+      },
+    ],
+  };
+
+  // Create the DID
+  const result = await gateway.create(DIDMethod.ION, document);
+  console.log('Created DID:', result.didDocument?.id);
+}
+```
+
+### 2. Issuing a Credential
+
+```typescript
+import { CredentialHub } from '@cs-sif/credential-hub';
+import { PolicyCompiler } from '@cs-sif/policy-utils';
+
+async function issueCredential() {
+  // Initialize services
+  const credentialHub = new CredentialHub('http://localhost:8001');
+  const policyCompiler = new PolicyCompiler();
+
+  // Define a policy
+  const policy = {
+    id: 'credential-access',
+    rules: [
+      {
+        and: [
+          { '>=': [{ var: 'requester.trustLevel' }, 3] },
+          { in: [{ var: 'requester.purpose' }, ['verification', 'audit']] },
+        ],
+      },
+    ],
+  };
+
+  // Compile the policy
+  const compiledPolicy = await policyCompiler.compile(policy);
+
+  // Issue a credential
+  const credential = await credentialHub.issue({
+    issuer: 'did:ion:example',
+    subject: 'did:ion:subject',
+    claims: {
+      name: 'John Doe',
+      age: 30,
+      role: 'developer',
+    },
+    policy: compiledPolicy.rego,
+  });
+
+  console.log('Issued credential:', credential);
+}
+```
+
+### 3. Using Hardware Wallets
+
+```typescript
+import { XrplDriver } from '@cs-sif/did-gateway';
+import { LedgerAdapter } from '@cs-sif/wallet-kit/adapters/ledger';
+
+async function useLedgerWallet() {
+  // Create a Ledger adapter
+  const walletAdapter = new LedgerAdapter({
+    accountIndex: 0,
+    derivationPath: "m/44'/144'/0'/0/0",
+  });
+
+  // Create an XRPL DID driver
+  const driver = new XrplDriver('wss://xrplcluster.com', walletAdapter);
+
+  try {
+    // Connect to the Ledger device
+    console.log('Please connect your Ledger device...');
+    await walletAdapter.connect();
+
+    // Get the address
+    const address = await walletAdapter.getAddress();
+    console.log('Connected to address:', address);
+
+    // Create a DID
+    const result = await driver.create({
+      verificationMethod: [
+        {
+          id: '#key-1',
+          type: 'Ed25519VerificationKey2020',
+          controller: `did:xrpl:${address}`,
+          publicKeyMultibase: 'zH3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV',
+        },
+      ],
+    });
+
+    console.log('Created DID:', result.didDocument?.id);
+  } finally {
+    await walletAdapter.disconnect();
+  }
+}
+```
+
+## Common Use Cases
+
+### 1. Cross-Chain Identity Management
+
+```typescript
+import { DIDGateway, DIDMethod } from '@cs-sif/did-gateway';
+
+async function manageCrossChainIdentity() {
+  const gateway = new DIDGateway();
+
+  // Create DIDs on different chains
+  const ionDid = await gateway.create(DIDMethod.ION, {
+    // ION DID document
+  });
+
+  const polygonDid = await gateway.create(DIDMethod.POLYGON, {
+    // Polygon DID document
+  });
+
+  const xrplDid = await gateway.create(DIDMethod.XRPL, {
+    // XRPL DID document
+  });
+
+  // Link DIDs across chains
+  await gateway.linkDIDs(ionDid.didDocument?.id, polygonDid.didDocument?.id);
+  await gateway.linkDIDs(polygonDid.didDocument?.id, xrplDid.didDocument?.id);
+}
+```
+
+### 2. Policy-Based Access Control
+
+```typescript
+import { PolicyEngine } from '@cs-sif/policy-engine';
+import { PolicyCompiler } from '@cs-sif/policy-utils';
+
+async function implementAccessControl() {
+  const policyEngine = new PolicyEngine('http://localhost:8001');
+  const compiler = new PolicyCompiler();
+
+  // Define a complex policy
+  const policy = {
+    id: 'data-access',
+    rules: [
+      {
+        and: [
+          { '>=': [{ var: 'user.trustLevel' }, 4] },
+          { in: [{ var: 'user.role' }, ['admin', 'manager']] },
+          {
+            or: [
+              { '==': [{ var: 'resource.type' }, 'sensitive'] },
+              { '==': [{ var: 'resource.type' }, 'confidential'] },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+
+  // Compile and register the policy
+  const compiledPolicy = await compiler.compile(policy);
+  await policyEngine.registerPolicy(compiledPolicy);
+
+  // Evaluate access
+  const decision = await policyEngine.evaluate('data-access', {
+    user: {
+      trustLevel: 5,
+      role: 'admin',
+    },
+    resource: {
+      type: 'sensitive',
+      id: 'resource-123',
+    },
+  });
+
+  console.log('Access granted:', decision.allowed);
+}
+```
+
+### 3. Zero-Knowledge Proofs
+
+```typescript
+import { CredentialHub } from '@cs-sif/credential-hub';
+
+async function useZeroKnowledgeProofs() {
+  const credentialHub = new CredentialHub('http://localhost:8001');
+
+  // Generate a zero-knowledge proof
+  const proof = await credentialHub.generateProof({
+    credential: 'credential-123',
+    reveal: ['name', 'role'], // Only reveal these attributes
+    nonce: 'random-nonce',
+  });
+
+  // Verify the proof
+  const verified = await credentialHub.verifyProof(proof);
+  console.log('Proof verified:', verified);
+}
+```
+
+## Testing
+
+### 1. Run Unit Tests
 
 ```bash
-# Run tests across all packages and services
+# Run all tests
 pnpm test
 
-# Run linting across all packages and services
-pnpm lint
-
-# Build all packages and services
-pnpm build
-
-# Clean build artifacts
-pnpm clean
+# Run specific package tests
+pnpm test --filter @cs-sif/did-gateway
 ```
 
-### Examples
-
-See the [examples](./examples) directory for usage examples:
-
-- [DID Gateway Example](./examples/did-gateway-example.ts)
-- [XRPL DID Example](./examples/did-gateway-xrpl-example.ts)
-- [XRPL DID with Hooks Example](./examples/did-gateway-xrpl-hooks-example.ts)
-- [XRPL DID with Wallet Adapters Example](./examples/xrpl-did-example-standalone.ts) - Demonstrates using Xumm and Ledger wallet adapters
-- [Policy Utils Example](./examples/policy-utils-example.ts)
-- [Wallet Example](./examples/wallet-example.ts)
-- [Integration Example](./examples/integration-example.ts)
-- [Credential Hub Example](./examples/credential-hub-example.py)
-- [Policy Engine Example](./examples/policy-engine-example.py)
-- [Policy Engine Real-World Example](./examples/policy-engine-real-world-example.py)
-- [Policy Engine Service Example](./examples/policy-engine-service-example.py)
-- [Policy Engine WebAssembly Example](./examples/policy-engine-wasm-example.py)
-- [Policy Engine WebAssembly TypeScript Example](./examples/policy-engine-wasm-example.ts)
-- [Policy Engine Service WebAssembly Example](./examples/policy-engine-service-wasm-example.py)
-- [Policy Engine Service WebAssembly TypeScript Example](./examples/policy-engine-service-wasm-example.ts)
-- [Credential Hub Stats Example (Python)](./examples/credential-hub-stats-example.py)
-- [Credential Hub Stats Example (TypeScript)](./examples/credential-hub-stats-example.ts)
-
-## XRPL DID with Wallet Adapters Example
-
-This example demonstrates how to use different wallet adapters with the XRPL DID driver.
-
-### Standalone Example (No Dependencies required)
+### 2. Run Integration Tests
 
 ```bash
-# Run the standalone example (mocked implementation for demonstration)
-npx ts-node --transpile-only examples/xrpl-did-example-standalone.ts
+# Start test services
+pnpm test:services
+
+# Run integration tests
+pnpm test:integration
 ```
 
-This standalone example demonstrates:
+## Troubleshooting
 
-- Using Xumm mobile wallet adapter with XRPL DIDs
-- Using Ledger hardware wallet adapter with XRPL DIDs
-- Switching between different wallet adapters
-- Fallback from wallet adapter to private key
+### Common Issues
 
-For detailed documentation, see [DOCS.md](./DOCS.md) and [START.md](./START.md).
+1. **Wallet Connection Issues**
 
-### Full Implementation Example
+   - Ensure hardware wallet is connected and unlocked
+   - Check if the correct app is open on the device
+   - Verify WebUSB permissions in the browser
 
-For a complete implementation with all features, see the [wallet-adapter-example.ts](./wallet-adapter-example.ts) file in the root directory.
+2. **Service Connection Issues**
 
-## Features
+   - Check if all services are running
+   - Verify environment variables
+   - Check network connectivity
+   - Review service logs
 
-### MVP Feature Set (Phase I)
+3. **Policy Evaluation Errors**
 
-- Create Spark (text + ≤15s video)
-- Auto-captions
-- Quote-reply functionality
-- Duet/stitch capability
-- Pulse (chronological) & Wave (recommendation) feeds with swipe toggle
-- Content Genie (draft ideas, trim, caption)
-- LLM Concierge (summaries)
-- Guardian Shield (pre-publish scan, watermark)
-- Block/report functionality
-- Invite codes
-- TikTok import wizard
-- Referral analytics
+   - Verify policy syntax
+   - Check input data format
+   - Review policy engine logs
+   - Validate policy compilation
 
-## Documentation
+4. **ClickHouse Configuration**
 
-See [DOCS.md](./DOCS.md) and [START.md](./START.md) for detailed documentation.
+   - Ensure ClickHouse is running with the correct credentials
+   - Create a `.env` file in the credential-hub service directory with the following:
+     ```
+     CLICKHOUSE_HOST=localhost
+     CLICKHOUSE_PORT=8123
+     CLICKHOUSE_USER=cs_sif
+     CLICKHOUSE_PASSWORD=password
+     CLICKHOUSE_DATABASE=cs_sif_analytics
+     ```
+   - Create the required database and tables:
+
+     ```sql
+     CREATE DATABASE IF NOT EXISTS cs_sif_analytics;
+
+     CREATE TABLE IF NOT EXISTS cs_sif_analytics.credential_events (
+       event_type String,
+       credential_id String,
+       subject_id String,
+       issuer_id String,
+       timestamp DateTime,
+       result String,
+       details String,
+       metadata String
+     ) ENGINE = MergeTree()
+     ORDER BY (event_type, timestamp);
+     ```
+
+5. **Datetime Handling Issues**
+   - When verifying credentials, ensure datetime formats are consistent
+   - The system handles both offset-aware (with timezone) and offset-naive (without timezone) datetime formats
+   - If you encounter "can't compare offset-naive and offset-aware datetimes" errors, check your datetime formats in credential expiration dates
+
+### Getting Help
+
+- Check the [Documentation](Documentation.md)
+- Join our [Discord community](https://discord.gg/cs-sif)
+- Open an [issue](https://github.com/vagabond/cs-sif/issues)
+- Contact support at support@cs-sif.org
+
+## Next Steps
+
+1. Explore the [Documentation](Documentation.md) for detailed information
+2. Check out the [examples](examples/) directory for more use cases
+3. Join our community for support and updates
+4. Contribute to the project by submitting pull requests
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
+
+- Code style and standards
+- Development workflow
+- Testing requirements
+- Pull request process
 
 ## License
 
-MIT
+Vagabond-Fuse is licensed under the [MIT License](LICENSE).
