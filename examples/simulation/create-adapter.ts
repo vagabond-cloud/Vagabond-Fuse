@@ -28,6 +28,7 @@ async function createAdapter() {
     // Try to import the real adapter
     // @ts-ignore - Ignore missing type definitions for the real adapter
     const { XRPLAdapter: RealAdapter } = await import(
+      // @ts-ignore
       '../real-xrpl-adapter.mjs'
     );
     adapter = new RealAdapter();
