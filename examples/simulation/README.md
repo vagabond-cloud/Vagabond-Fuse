@@ -1,81 +1,75 @@
-# EU Digital Identity Wallet Simulation
+# EU Digital ID Wallet Simulation
 
-This simulation demonstrates a real-world implementation of the European Digital Identity Wallet in accordance with the eIDAS 2.0 regulation using the Vagabond-Fuse components.
+This simulation demonstrates how the Vagabond-Fuse framework can be used to implement the European Digital Identity Wallet (EUDI) for cross-border public services.
 
 ## Overview
 
-The simulation showcases how the EU Digital Identity Wallet can be used in various cross-border scenarios, including authentication, credential verification, and secure data sharing. It also demonstrates integration with the XRP Ledger (XRPL) for blockchain-based identity and payment use cases.
+The simulation is based on the scenario shown in the image:
 
-## Features
+1. Alma, a 29-year-old Spanish citizen living in Portugal, needs to update her address in the Portuguese National Population Register.
+2. She opens the Portuguese National Population Register app.
+3. She authenticates with her Spanish identification information from her EU Digital Identity Wallet (EUDI).
+4. Her address is updated in the Portuguese National Population Register.
 
-- **Cross-Border Authentication**: EU citizens can authenticate with services in other Member States
-- **Selective Disclosure**: Users can share only the required attributes from their credentials
-- **Qualified Electronic Signatures**: Create legally binding signatures with your digital identity
-- **Age Verification**: Privacy-preserving age verification for online services
-- **Diploma Recognition**: Cross-border recognition of educational qualifications
-- **Digital Euro Integration**: Simulation of CBDC issuance and payments
-- **XRPL Integration**: Real blockchain integration for identity and payment use cases
+## Technical Implementation
 
-## XRPL Integration
+The simulation uses:
 
-The simulation includes integration with the XRP Ledger (XRPL) for blockchain-based use cases:
+- XRPL testnet for DID (Decentralized Identifier) operations
+- Verifiable Credentials for the Spanish identification document
+- Mock services for the Portuguese National Population Register
 
-- **Digital Euro Issuance**: Central Bank Digital Currency (CBDC) tokens
-- **Cross-Border Payments**: Direct payments between EU citizens
-- **Tokenized Credentials**: Representing credentials as tokens on XRPL
-- **Business Data Sharing**: Secure data sharing with immutable audit trail
-- **Digital Voting**: Privacy-preserving voting with blockchain verification
+## Components
 
-The simulation can run in two modes:
+1. **EUDIWallet**: A mock implementation of an EU Digital Identity Wallet that can:
 
-1. **Mock Mode**: Uses a mock XRPL adapter for demonstration purposes (default)
-2. **Real Mode**: Connects to the XRPL Testnet for actual blockchain transactions
+   - Connect to the XRPL testnet
+   - Manage the user's DID
+   - Store and present verifiable credentials
 
-### Using Real XRPL Integration
+2. **XrplDID**: A representation of a DID document on the XRPL blockchain
 
-To use the real XRPL integration, you need to install the XRPL package:
+3. **SpanishIdentificationAuthority**: A mock issuer of Spanish identification credentials
 
-```bash
-npm install xrpl
-```
-
-When running the simulation with the XRPL package installed, it will attempt to connect to the XRPL Testnet. If the connection fails, it will automatically fall back to the mock implementation.
+4. **PopulationRegisterService**: A mock service representing the Portuguese National Population Register
 
 ## Running the Simulation
 
-To run the simulation, use the provided script:
+To run the simulation:
 
 ```bash
-./run-eu-simulation.sh
+# Make sure you have Node.js and the required dependencies installed
+npm install xrpl
+
+# Run the simulation
+npx ts-node examples/simulation/eu_digital_id_simulation.ts
 ```
 
-The script will check for dependencies and prompt you to install them if necessary.
+## Expected Output
 
-## Scenarios Demonstrated
+The simulation will output a step-by-step process showing:
 
-1. Cross-Border Authentication
-2. Age Verification
-3. Digital Signature
-4. Diploma Recognition
-5. Digital Euro Issuance
-6. Cross-Border Payments
-7. Tokenized Credentials
-8. Cross-Border Healthcare
-9. Secure Payment Authorization
-10. Business Data Sharing with Audit Trail
-11. Secure Digital Voting
+1. Alma opening her EUDI wallet
+2. Creation of her digital identity (DID)
+3. The Spanish authority issuing her identification credential
+4. Alma opening the Portuguese National Population Register app
+5. Authentication with her Spanish identification
+6. Updating her address in the Portuguese system
 
-## Components Used
+## Benefits of EU Digital ID Wallet
 
-- **Wallet Kit**: For secure storage and management of digital identity credentials
+- **Seamless Cross-Border Services**: Citizens can access public services across EU member states without bureaucratic hurdles.
+- **Secure Identity Verification**: Cryptographically secure verification of identity without revealing unnecessary personal data.
+- **User Control**: Citizens maintain control over their identity data and choose what to share.
+- **Paperless Procedures**: Reduces the need for physical documents and in-person visits to government offices.
+
+## Integration with Vagabond-Fuse
+
+This simulation demonstrates how the Vagabond-Fuse framework's components can be used to implement the EUDI wallet:
+
 - **DID Gateway**: For creating and managing decentralized identifiers
-- **Policy Utils**: For defining and enforcing access control policies
-- **Credential Hub**: For issuing and verifying verifiable credentials
-- **XRPL Adapter**: For integration with the XRP Ledger
+- **Wallet Kit**: For secure key management and signing operations
+- **Credential Hub**: For issuing and verifying credentials
+- **Policy Engine**: For enforcing access control policies
 
-## Requirements
-
-- Node.js 16+
-- TSX (TypeScript execution engine)
-- UUID package
-- XRPL package (optional, for real blockchain integration)
+In a production implementation, these components would be fully integrated with the XRPL and other blockchain networks to provide a secure and interoperable digital identity solution.

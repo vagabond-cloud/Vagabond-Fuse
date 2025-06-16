@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EU Digital ID Wallet Simulation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: #003399;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header img {
+            height: 60px;
+        }
+
+        .step-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+            border-left: 5px solid #003399;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            background-color: #003399;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .step h3 {
+            margin-top: 0;
+            color: #003399;
+        }
+
+        .step-content {
+            display: flex;
+            gap: 20px;
+        }
+
+        .step-image {
+            flex: 0 0 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-image img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        .step-text {
+            flex: 1;
+        }
+
+        .code-block {
+            background-color: #f8f8f8;
+            border-left: 3px solid #ddd;
+            padding: 10px 15px;
+            font-family: monospace;
+            overflow-x: auto;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .benefits {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .benefit {
+            flex: 1;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .benefit i {
+            font-size: 2em;
+            color: #003399;
+            margin-bottom: 10px;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #003399;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .button:hover {
+            background-color: #002266;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div class="header">
+        <div>
+            <h1>EU Digital ID Wallet Simulation</h1>
+            <p>Cross-border identity verification using XRPL and Verifiable Credentials</p>
+        </div>
+        <img src="https://european-union.europa.eu/sites/default/files/2021-12/Flag_of_Europe.jpg" alt="EU Flag">
+    </div>
+
+    <p>
+        This simulation demonstrates how the European Digital Identity Wallet (EUDI) can be used to access public
+        services
+        across EU member states, following the scenario depicted in the provided image. The simulation uses the
+        Vagabond-Fuse
+        framework with XRPL integration for DIDs and verifiable credentials.
+    </p>
+
+    <div class="step-container">
+        <div class="step">
+            <div class="step-number">1</div>
+            <h3>Alma opens her EU Digital Identity Wallet</h3>
+            <div class="step-content">
+                <div class="step-image">
+                    <i class="fas fa-mobile-alt" style="font-size: 5em; color: #003399;"></i>
+                </div>
+                <div class="step-text">
+                    <p>
+                        Alma, a 29-year-old Spanish citizen living in Portugal, opens her EU Digital Identity Wallet app
+                        on her smartphone. The wallet connects to the XRPL testnet and retrieves her digital identity.
+                    </p>
+                    <div class="code-block">
+                        const almaWallet = new EUDIWallet({<br>
+                        &nbsp;&nbsp;userName: "Alma",<br>
+                        &nbsp;&nbsp;userCountry: "Spain",<br>
+                        &nbsp;&nbsp;networkUrl: XRPL_TESTNET<br>
+                        });<br>
+                        <br>
+                        await almaWallet.connect();
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <h3>Creating Alma's digital identity</h3>
+            <div class="step-content">
+                <div class="step-image">
+                    <i class="fas fa-id-card" style="font-size: 5em; color: #003399;"></i>
+                </div>
+                <div class="step-text">
+                    <p>
+                        The wallet creates a Decentralized Identifier (DID) for Alma on the XRPL. This DID serves as her
+                        unique digital identity that can be verified across different services and countries.
+                    </p>
+                    <div class="code-block">
+                        const almaAddress = almaWallet.getAddress();<br>
+                        const almaDID = new XrplDID(almaAddress);<br>
+                        console.log(`Alma's DID: ${almaDID.getDID()}`);
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <h3>Spanish authority issues identification credential</h3>
+            <div class="step-content">
+                <div class="step-image">
+                    <i class="fas fa-passport" style="font-size: 5em; color: #003399;"></i>
+                </div>
+                <div class="step-text">
+                    <p>
+                        The Spanish identification authority issues a verifiable credential to Alma's wallet. This
+                        credential
+                        contains her identification information in a secure, tamper-evident format.
+                    </p>
+                    <div class="code-block">
+                        const spanishAuthority = new SpanishIdentificationAuthority();<br>
+                        <br>
+                        const identificationCredential = spanishAuthority.issueIdentificationCredential(<br>
+                        &nbsp;&nbsp;almaDID.getDID(),<br>
+                        &nbsp;&nbsp;{<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;name: "Alma",<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;dateOfBirth: "1994-05-15",<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;nationality: "Spanish",<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;documentNumber: "ES123456789"<br>
+                        &nbsp;&nbsp;}<br>
+                        );
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">4</div>
+            <h3>Alma opens the Portuguese National Population Register app</h3>
+            <div class="step-content">
+                <div class="step-image">
+                    <i class="fas fa-building" style="font-size: 5em; color: #003399;"></i>
+                </div>
+                <div class="step-text">
+                    <p>
+                        Alma opens the Portuguese National Population Register app on her phone. This app allows
+                        residents
+                        to update their address information in the national registry.
+                    </p>
+                    <div class="code-block">
+                        const portugueseRegister = new PopulationRegisterService("PT");
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">5</div>
+            <h3>Alma authenticates with her Spanish identification</h3>
+            <div class="step-content">
+                <div class="step-image">
+                    <i class="fas fa-user-check" style="font-size: 5em; color: #003399;"></i>
+                </div>
+                <div class="step-text">
+                    <p>
+                        The Portuguese app requests identity verification. Alma's EUDI wallet presents her Spanish
+                        identification
+                        credential, which is verified by the Portuguese service without requiring additional
+                        documentation.
+                    </p>
+                    <div class="code-block">
+                        const verified = await portugueseRegister.verifyIdentity(<br>
+                        &nbsp;&nbsp;almaDID.getDID(), <br>
+                        &nbsp;&nbsp;identificationCredential<br>
+                        );
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">6</div>
+            <h3>Alma updates her address in the Portuguese National Population Register</h3>
+            <div class="step-content">
+                <div class="step-image">
+                    <i class="fas fa-home" style="font-size: 5em; color: #003399;"></i>
+                </div>
+                <div class="step-text">
+                    <p>
+                        After successful authentication, Alma submits her new address details. The Portuguese National
+                        Population Register updates her information in their system.
+                    </p>
+                    <div class="code-block">
+                        const addressUpdated = await portugueseRegister.updateAddress(<br>
+                        &nbsp;&nbsp;almaDID.getDID(),<br>
+                        &nbsp;&nbsp;{<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;street: "Rua da Liberdade 123",<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;city: "Lisbon",<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;postalCode: "1250-096",<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;country: "Portugal"<br>
+                        &nbsp;&nbsp;}<br>
+                        );
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Benefits of EU Digital ID Wallet</h2>
+
+    <div class="benefits">
+        <div class="benefit">
+            <i class="fas fa-globe-europe"></i>
+            <h3>Seamless Cross-Border Services</h3>
+            <p>Access public services across EU member states without bureaucratic hurdles.</p>
+        </div>
+        <div class="benefit">
+            <i class="fas fa-shield-alt"></i>
+            <h3>Secure Identity Verification</h3>
+            <p>Cryptographically secure verification without revealing unnecessary personal data.</p>
+        </div>
+        <div class="benefit">
+            <i class="fas fa-user-lock"></i>
+            <h3>User Control</h3>
+            <p>Citizens maintain control over their identity data and choose what to share.</p>
+        </div>
+        <div class="benefit">
+            <i class="fas fa-leaf"></i>
+            <h3>Paperless Procedures</h3>
+            <p>Reduces the need for physical documents and in-person visits to government offices.</p>
+        </div>
+    </div>
+
+    <h2>Run the Simulation</h2>
+    <p>
+        To run this simulation yourself, use the provided script:
+    </p>
+    <div class="code-block">
+        ./examples/simulation/run-simulation.sh
+    </div>
+    <p>
+        <a href="#" class="button">View Source Code</a>
+        <a href="#" class="button">Learn More About EUDI</a>
+    </p>
+
+    <div class="footer">
+        <p>EU Digital ID Wallet Simulation | Powered by Vagabond-Fuse Framework | XRPL Integration</p>
+    </div>
+</body>
+
+</html>
