@@ -553,7 +553,7 @@ pnpm test:integration
 
 ## Next Steps
 
-1. Explore the [Documentation](Documentation.md) for detailed information
+1. Explore the [Documentation](DOCS.md) for detailed information
 2. Check out the [examples](examples/) directory for more use cases
 3. Join our community for support and updates
 4. Contribute to the project by submitting pull requests
