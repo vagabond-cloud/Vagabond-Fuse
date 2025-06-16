@@ -295,7 +295,7 @@ async function walletWithFallbackExample(): Promise<void> {
       accountIndex: 0,
     });
 
-    let didResult: DIDResolutionResult;
+    let didResult: typeof DIDResolutionResult;
     let didAddress: string;
 
     try {
@@ -345,7 +345,7 @@ async function walletWithFallbackExample(): Promise<void> {
       );
 
       // Remove the wallet adapter
-      driver.setWalletAdapter(undefined as unknown as WalletAdapter);
+      driver.setWalletAdapter(undefined as unknown as typeof WalletAdapter);
 
       // Use private key instead
       const privateKey = 'sEdVLfuWRu1PevYJv9qnKsXdZQJXVJm'; // Example seed
