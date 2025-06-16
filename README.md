@@ -1,6 +1,15 @@
-# Fuse Monorepo
+# Vagabond-Fuse
 
-This repository contains the core components for the Fuse project.
+A next-generation AI-native social network with dual-feed experience supporting short text and short-form video "Sparks".
+
+## Project Overview
+
+Vagabond-Fuse is building a social platform with:
+
+- Dual-feed experience: Pulse (chronological) & Wave (recommendation)
+- Short text + short-form video "Sparks" (≤15s video)
+- AI-powered creator toolchain for frictionless content creation
+- Real-time engagement and micro-tipping system
 
 ## Repository Structure
 
@@ -20,6 +29,16 @@ This repository contains the core components for the Fuse project.
   - Python examples for each service
   - Integration example showing complete workflow
 
+## Tech Stack
+
+- **Frontend**: Next.js 15 (web), React Native (mobile)
+- **Core APIs**: Go 1.22 + gRPC-Gateway
+- **AI Services**: Python ≥3.11 / PyTorch 2.3 with Triton Inference Server
+- **Data**: PostgreSQL 16 (users, payments) + ScyllaDB (feed cache) + Kafka
+- **Real-Time**: WebSocket + Redis Streams
+- **DevOps**: Kubernetes (GKE), Helm, Argo CD, Linkerd
+- **Observability**: OpenTelemetry, Grafana Cloud, Prometheus
+
 ## Development
 
 ### Prerequisites
@@ -28,6 +47,7 @@ This repository contains the core components for the Fuse project.
 - pnpm (v8+)
 - Python (v3.11+)
 - Poetry (v1.5+)
+- Go 1.22+
 
 ### Setup
 
@@ -82,11 +102,11 @@ See the [examples](./examples) directory for usage examples:
 
 This example demonstrates how to use different wallet adapters with the XRPL DID driver.
 
-### Standalone Example (No Dependencies)
+### Standalone Example (No Dependencies required)
 
 ```bash
 # Run the standalone example (mocked implementation for demonstration)
-npx ts-node --transpile-only xrpl-did-example-standalone.ts
+npx ts-node --transpile-only examples/xrpl-did-example-standalone.ts
 ```
 
 This standalone example demonstrates:
@@ -96,9 +116,32 @@ This standalone example demonstrates:
 - Switching between different wallet adapters
 - Fallback from wallet adapter to private key
 
-See [xrpl-did-example-standalone.md](./xrpl-did-example-standalone.md) for detailed documentation.
+For detailed documentation, see [DOCS.md](./DOCS.md) and [START.md](./START.md).
 
 ### Full Implementation Example
+
+For a complete implementation with all features, see the [wallet-adapter-example.ts](./wallet-adapter-example.ts) file in the root directory.
+
+## Features
+
+### MVP Feature Set (Phase I)
+
+- Create Spark (text + ≤15s video)
+- Auto-captions
+- Quote-reply functionality
+- Duet/stitch capability
+- Pulse (chronological) & Wave (recommendation) feeds with swipe toggle
+- Content Genie (draft ideas, trim, caption)
+- LLM Concierge (summaries)
+- Guardian Shield (pre-publish scan, watermark)
+- Block/report functionality
+- Invite codes
+- TikTok import wizard
+- Referral analytics
+
+## Documentation
+
+See [DOCS.md](./DOCS.md) and [START.md](./START.md) for detailed documentation.
 
 ## License
 

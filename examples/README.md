@@ -159,7 +159,7 @@ For more details on these examples, see the `README-policy-engine-wasm.md` file.
 
 ### Integration Example
 
-The `integration-example.ts` file demonstrates a complete workflow using all CS-SIF components:
+The `integration-example.ts` file demonstrates a complete workflow using all Vagabond-Fuse components:
 
 1. **Wallet Creation and Key Generation**:
 
@@ -404,7 +404,7 @@ After exploring these examples, you can:
 
 1. Integrate these components into your own applications
 2. Extend the functionality with additional features
-3. Contribute to the CS-SIF project by improving existing components
+3. Contribute to the Vagabond-Fuse project by improving existing components
 
 ## License
 

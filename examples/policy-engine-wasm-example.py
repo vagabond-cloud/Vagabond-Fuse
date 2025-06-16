@@ -22,7 +22,7 @@ sys.path.append(str(Path(__file__).parent.parent / "services" / "policy-engine")
 try:
     from app.services.evaluator import PolicyEvaluator
 except ImportError:
-    print("Error: Could not import PolicyEvaluator. Make sure you're running this script from the CS-SIF root directory.")
+    print("Error: Could not import PolicyEvaluator. Make sure you're running this script from the Vagabond-Fuse root directory.")
     sys.exit(1)
 
 # Define the GDPR policy in Rego

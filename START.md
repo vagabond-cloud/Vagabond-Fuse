@@ -1,6 +1,6 @@
-# Getting Started with CS-SIF
+# Getting Started with Vagabond-Fuse
 
-This guide will help you get started with the CS-SIF (Cross-Chain Self-Sovereign Identity Fabric) framework. We'll cover installation, basic setup, and walk through some common use cases.
+This guide will help you get started with the Vagabond-Fuse (Cross-Chain Self-Sovereign Identity Fabric) framework. We'll cover installation, basic setup, and walk through some common use cases.
 
 ## Prerequisites
 
@@ -569,4 +569,4 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## License
 
-CS-SIF is licensed under the [MIT License](LICENSE).
+Vagabond-Fuse is licensed under the [MIT License](LICENSE).

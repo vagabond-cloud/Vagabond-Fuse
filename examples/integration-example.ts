@@ -17,7 +17,7 @@ const CREDENTIAL_HUB_URL = 'http://localhost:8000';
 const POLICY_ENGINE_URL = 'http://localhost:8001';
 
 async function main() {
-  console.log('CS-SIF Integration Example');
+  console.log('Vagabond-Fuse Integration Example');
   console.log('=========================');
 
   try {

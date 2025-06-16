@@ -1,7 +1,7 @@
 {
     "name": "@fuse/wallet-kit",
     "version": "0.1.0",
-    "description": "React-Native + WASM key store for CS-SIF",
+    "description": "React-Native + WASM key store for Vagabond-Fuse",
     "main": "dist/index.js",
     "module": "dist/index.mjs",
     "types": "dist/index.d.ts",

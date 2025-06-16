@@ -1,4 +1,4 @@
-# CS-SIF Cursor Rules (Hybrid Edition)
+# Vagabond-Fuse Cursor Rules (Hybrid Edition)
 
 ## 0. Golden Principles
 
