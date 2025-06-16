@@ -28,6 +28,8 @@ run_example "DID Gateway XRPL Hooks" "npx tsx did-gateway-xrpl-hooks-example.ts"
 run_example "Policy Utils" "npx tsx policy-utils-example.ts"
 run_example "Integration" "npx tsx integration-example.ts"
 run_example "Credential Hub Stats (TypeScript)" "npx tsx credential-hub-stats-example.ts"
+run_example "FuseStream Simulation" "npx tsx simulation/fusestream-simulation.ts"
+run_example "EU Digital Identity Simulation" "npx tsx simulation/eu-digital-identity-simulation.ts"
 
 # Check if OPA is installed for TypeScript WASM examples
 if command -v opa &> /dev/null; then

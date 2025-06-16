@@ -21,6 +21,8 @@
         "policy-engine:real-world": "python policy-engine-real-world-example.py",
         "policy-engine:wasm:ts": "tsx policy-engine-wasm-example.ts",
         "policy-engine:service:ts": "tsx policy-engine-service-wasm-example.ts",
+        "simulation": "tsx simulation/fusestream-simulation.ts",
+        "simulation:eu": "tsx simulation/eu-digital-identity-simulation.ts",
         "test": "echo \"Error: no test specified\" && exit 1",
         "run-all": "./run-all-examples.sh"
     },
@@ -30,7 +32,11 @@
         "@fuse/wallet-kit": "file:../packages/wallet-kit",
         "@ledgerhq/hw-transport-webusb": "^6.29.6",
         "axios": "^1.10.0",
+        "chalk": "^4.1.2",
+        "cli-table3": "^0.6.5",
+        "ora": "^8.2.0",
         "uuid": "^9.0.1",
+        "xrpl": "^4.3.0",
         "xumm-sdk": "^1.11.2"
     },
     "devDependencies": {

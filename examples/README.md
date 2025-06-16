@@ -109,6 +109,86 @@ python policy-engine-real-world-example.py
 
 ## Example Descriptions
 
+### FuseStream Simulation Example
+
+The `simulation/fusestream-simulation.ts` file demonstrates a complete real-world application of the Vagabond-Fuse project components in a social network platform:
+
+1. **User Identity Management**:
+
+   - Creating user wallets with secure key management
+   - Generating decentralized identifiers (DIDs) for users
+   - Managing user relationships (followers/following)
+
+2. **Content Creation and Sharing**:
+
+   - Creating "Sparks" (posts) with different visibility settings
+   - Implementing age restrictions on content
+   - Enforcing regional privacy restrictions
+
+3. **Policy-Based Access Control**:
+
+   - Defining content sharing policies using JSON Logic
+   - Evaluating access requests against policies
+   - Providing detailed reasons for access decisions
+
+4. **Credential Issuance and Verification**:
+   - Issuing creator credentials to users
+   - Using credentials for reputation management
+
+To run the simulation:
+
+```bash
+# Using the provided script
+./simulation/run-simulation.sh
+
+# Or directly with ts-node
+npx ts-node simulation/fusestream-simulation.ts
+```
+
+For more details, see the `simulation/README.md` file.
+
+### EU Digital Identity Wallet Simulation
+
+The `simulation/eu-digital-identity-simulation.ts` file demonstrates a comprehensive implementation of the European Digital Identity Wallet in accordance with the eIDAS 2.0 regulation, with XRPL integration:
+
+1. **Digital Identity Management**:
+
+   - Creating citizen and authority wallets with secure key management
+   - Generating DIDs for citizens, authorities, and services
+   - Managing verifiable credentials in digital wallets
+
+2. **Cross-Border Authentication**:
+
+   - Citizens accessing services in different EU Member States
+   - Selective disclosure of personal attributes
+   - Age verification for restricted services
+
+3. **Verifiable Credentials**:
+
+   - National ID issuance by Member State authorities
+   - Educational qualifications and recognition
+   - Healthcare credentials for cross-border medical access
+   - Qualified electronic signatures for document signing
+
+4. **XRPL Integration**:
+   - Digital Euro CBDC issuance and transfers
+   - Tokenized credentials on XRPL
+   - Secure payment authorization with verifiable credentials
+   - Business data sharing with immutable audit trail
+   - Privacy-preserving digital voting
+
+To run the simulation:
+
+```bash
+# Using the provided script
+./simulation/run-eu-simulation.sh
+
+# Or directly with tsx
+npx tsx simulation/eu-digital-identity-simulation.ts
+```
+
+For more details, see the `simulation/eu-digital-identity-README.md` file.
+
 ### Credential Hub Examples
 
 The Credential Hub examples demonstrate how to use the Credential Hub service:
@@ -409,3 +489,52 @@ After exploring these examples, you can:
 ## License
 
 MIT
+
+# Vagabond-Fuse Examples
+
+This directory contains examples and demonstrations of the Vagabond-Fuse components in action.
+
+## EU Digital Identity Wallet Simulation
+
+A comprehensive simulation of the European Digital Identity Wallet in accordance with eIDAS 2.0 regulation, featuring:
+
+- Cross-border authentication and credential verification
+- Selective disclosure of personal attributes
+- Qualified electronic signatures
+- Digital Euro issuance and payments via XRPL
+- Tokenized credentials on XRPL
+- Business data sharing with blockchain audit trail
+- Privacy-preserving digital voting
+
+The simulation supports both mock and real XRPL integration, allowing you to run it with or without connecting to the XRPL Testnet.
+
+[View EU Digital Identity Wallet Simulation](./simulation/README.md)
+
+## Mocks
+
+Mock implementations of the Vagabond-Fuse components for standalone examples and testing:
+
+- Wallet Kit: For secure storage and management of digital identity credentials
+- DID Gateway: For creating and managing decentralized identifiers
+- Policy Utils: For defining and enforcing access control policies
+- XRPL Adapter: For interacting with the XRP Ledger
+
+[View Mocks](./mocks/README.md)
+
+## Real XRPL Integration
+
+The examples include a real XRPL adapter that connects to the XRPL Testnet for blockchain-based use cases:
+
+- Digital currency issuance
+- Cross-border payments
+- Tokenized credentials
+- Secure data sharing with audit trail
+- Privacy-preserving digital voting
+
+To use the real XRPL integration, install the XRPL package:
+
+```bash
+npm install xrpl
+```
+
+[View Real XRPL Adapter](./real-xrpl-adapter.mjs)
