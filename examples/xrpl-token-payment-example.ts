@@ -1,5 +1,5 @@
 /**
- * XRPL Token Payment Example
+ * XRPL Token Fee Payment Example
  *
  * This example demonstrates how to:
  * 1. Connect to the XRPL network
