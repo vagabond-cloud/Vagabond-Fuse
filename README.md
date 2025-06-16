@@ -569,3 +569,81 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ## License
 
 Vagabond-Fuse is licensed under the [MIT License](LICENSE).
+
+## XRPL Token Payment
+
+The platform now supports XRPL token payments for service fees. This allows users to pay for DID operations using custom XRPL tokens.
+
+### Token Configuration
+
+To configure the token for fee payments:
+
+```typescript
+const tokenConfig = {
+  currency: 'VGB', // VGB token currency code
+  issuer: 'rhcyBrowwApgNonehKBj8Po5z4gTyRknaU', // VGB token issuer address
+  minFeeAmount: '1', // Minimum fee amount
+};
+```
+
+### Fee Configuration
+
+The fee service can be configured with different fee amounts for various operations:
+
+```typescript
+const feeConfig = {
+  createFee: '10', // Fee for creating a DID
+  updateFee: '5', // Fee for updating a DID
+  resolveFee: '0', // Fee for resolving a DID (free)
+  deactivateFee: '2', // Fee for deactivating a DID
+  feeRecipient: 'rFeeRecipientAddress', // Fee recipient address
+};
+```
+
+### Integration with XRPL Driver
+
+```typescript
+// Initialize wallet adapter
+const xummAdapter = new XummAdapter({
+  apiKey: 'YOUR_XUMM_API_KEY',
+  apiSecret: 'YOUR_XUMM_API_SECRET',
+});
+
+// Connect to wallet
+await xummAdapter.connect();
+
+// Get wallet address
+const walletAddress = await xummAdapter.getAddress();
+
+// Initialize XRPL driver with fee configuration
+const xrplDriver = new XrplDriver(
+  'wss://xrplcluster.com', // XRPL network
+  xummAdapter,
+  {
+    tokenConfig: {
+      currency: 'VGB', // VGB token currency code
+      issuer: 'rhcyBrowwApgNonehKBj8Po5z4gTyRknaU', // VGB token issuer address
+      minFeeAmount: '1', // Minimum fee amount
+    },
+    feeRecipient: walletAddress, // Fee recipient address
+  }
+);
+
+// Create a DID (fee will be automatically charged)
+const didDocument = {
+  '@context': ['https://www.w3.org/ns/did/v1'],
+  service: [
+    {
+      id: '#service-1',
+      type: 'LinkedDomains',
+      serviceEndpoint: 'https://example.com',
+    },
+  ],
+};
+
+const createResult = await xrplDriver.create(didDocument);
+```
+
+### Example
+
+See the full example in [examples/xrpl-token-payment-example.ts](examples/xrpl-token-payment-example.ts).

@@ -1,2 +1,2 @@
-export * from './lib/did-gateway';
-export * from './lib/types';
+export * from './lib';
+export * from './methods/xrpl';

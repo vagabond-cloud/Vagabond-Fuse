@@ -1,4 +1,4 @@
-import { DIDDocument, DIDResolutionResult } from '../lib/types';
+import { DIDDocument, DIDResolutionResult } from '../lib';
 import {
   Client,
   Wallet,
@@ -6,8 +6,9 @@ import {
   convertStringToHex,
   xrpToDrops,
 } from 'xrpl';
-import { WalletAdapter } from '../../../wallet-kit/src/lib/wallet-adapter';
-import { XummAdapter } from '../../../wallet-kit/adapters/xumm';
+import { WalletAdapter, TokenConfig } from '@fuse/wallet-kit';
+import { FeeService } from '../lib/fee-service';
+import { DEFAULT_TOKEN_CONFIG } from '../lib/fee-service';
 
 /**
  * XRPL DID Driver implementation
@@ -19,18 +20,34 @@ export class XrplDriver {
   private client: Client | null = null;
   private network: string;
   private walletAdapter: WalletAdapter | null = null;
+  private feeService: FeeService | null = null;
 
   /**
    * Constructor
    * @param network - XRPL network to connect to (default: 'wss://xrplcluster.com')
-   * @param walletAdapter - Optional wallet adapter (defaults to XummAdapter if not provided)
+   * @param walletAdapter - Optional wallet adapter (defaults to null)
+   * @param feeConfig - Optional fee configuration for token payments
    */
   constructor(
     network: string = 'wss://xrplcluster.com',
-    walletAdapter?: WalletAdapter
+    walletAdapter?: WalletAdapter,
+    feeConfig?: {
+      tokenConfig: TokenConfig;
+      feeRecipient: string;
+    }
   ) {
     this.network = network;
     this.walletAdapter = walletAdapter || null;
+
+    // Initialize fee service if configuration is provided
+    if (feeConfig && this.walletAdapter) {
+      this.feeService = new FeeService(
+        this.walletAdapter,
+        feeConfig.tokenConfig || DEFAULT_TOKEN_CONFIG,
+        { feeRecipient: feeConfig.feeRecipient },
+        network
+      );
+    }
   }
 
   /**
@@ -47,6 +64,37 @@ export class XrplDriver {
    */
   getWalletAdapter(): WalletAdapter | null {
     return this.walletAdapter;
+  }
+
+  /**
+   * Set up the fee service
+   * @param tokenConfig - Token configuration
+   * @param feeRecipient - Fee recipient address
+   */
+  setupFeeService(
+    tokenConfig: TokenConfig | undefined,
+    feeRecipient: string
+  ): void {
+    if (!this.walletAdapter) {
+      throw new Error(
+        'Wallet adapter must be set before setting up fee service'
+      );
+    }
+
+    this.feeService = new FeeService(
+      this.walletAdapter,
+      tokenConfig || DEFAULT_TOKEN_CONFIG,
+      { feeRecipient },
+      this.network
+    );
+  }
+
+  /**
+   * Get the fee service
+   * @returns Fee service or null if not set
+   */
+  getFeeService(): FeeService | null {
+    return this.feeService;
   }
 
   /**
@@ -81,6 +129,35 @@ export class XrplDriver {
     privateKey?: string
   ): Promise<DIDResolutionResult> {
     try {
+      // Process fee payment if fee service is configured
+      if (this.feeService) {
+        // Check if user has sufficient balance
+        const hasSufficientBalance = await this.feeService.hasSufficientBalance(
+          'create'
+        );
+        if (!hasSufficientBalance) {
+          return this.createErrorResult(
+            new Error('Insufficient token balance for create operation')
+          );
+        }
+
+        // Ensure trustline exists
+        const trustlineSetup = await this.feeService.setupTrustline();
+        if (!trustlineSetup) {
+          return this.createErrorResult(
+            new Error('Failed to set up token trustline')
+          );
+        }
+
+        // Pay the fee
+        const feePaymentSuccess = await this.feeService.payCreateFee();
+        if (!feePaymentSuccess) {
+          return this.createErrorResult(
+            new Error('Fee payment failed for create operation')
+          );
+        }
+      }
+
       const client = await this.initClient();
       let address: string;
       let signedTxBlob: string;
@@ -199,7 +276,6 @@ export class XrplDriver {
         };
       }
     } catch (error: any) {
-      await this.closeClient();
       return this.createErrorResult(error);
     }
   }
@@ -211,9 +287,31 @@ export class XrplDriver {
    */
   async resolve(did: string): Promise<DIDResolutionResult> {
     try {
-      // Extract address from DID
+      // Process fee payment if fee service is configured and fees are required for resolution
+      if (this.feeService) {
+        // Check if user has sufficient balance
+        const hasSufficientBalance = await this.feeService.hasSufficientBalance(
+          'resolve'
+        );
+        if (!hasSufficientBalance) {
+          return this.createErrorResult(
+            new Error('Insufficient token balance for resolve operation')
+          );
+        }
+
+        // Pay the fee if needed (resolve may be free)
+        const feePaymentSuccess = await this.feeService.payResolveFee();
+        if (!feePaymentSuccess) {
+          return this.createErrorResult(
+            new Error('Fee payment failed for resolve operation')
+          );
+        }
+      }
+
+      // Extract XRPL address from DID
       const address = this.extractAddressFromDid(did);
 
+      // Initialize XRPL client
       const client = await this.initClient();
 
       // Get account info
@@ -223,36 +321,31 @@ export class XrplDriver {
         ledger_index: 'validated',
       });
 
-      await this.closeClient();
-
-      // Extract DID Document from Domain field
-      let didDocument: DIDDocument;
-
-      if (accountInfo.result.account_data.Domain) {
-        // Convert hex to string and parse JSON
-        const domainHex = accountInfo.result.account_data.Domain;
-        const domainString = Buffer.from(domainHex, 'hex').toString('utf8');
-
-        try {
-          didDocument = JSON.parse(domainString);
-        } catch (e) {
-          // If parsing fails, create a minimal DID document
-          didDocument = { id: did };
-        }
-      } else {
-        // If no Domain field, create a minimal DID document
-        didDocument = { id: did };
+      // Get Domain field from account info
+      const domain = accountInfo.result.account_data.Domain;
+      if (!domain) {
+        throw new Error('DID document not found in account Domain field');
       }
 
+      // Convert hex Domain field to string and parse as JSON
+      const didDocumentStr = Buffer.from(domain, 'hex').toString('utf8');
+      const didDocument = JSON.parse(didDocumentStr);
+
+      await this.closeClient();
+
+      // Return DID Resolution Result
       return {
         didDocument,
         didResolutionMetadata: {
           contentType: 'application/did+json',
         },
-        didDocumentMetadata: {},
+        didDocumentMetadata: {
+          updated: accountInfo.result.account_data.PreviousTxnLgrSeq
+            ? new Date().toISOString() // Just use current time since we don't have a timestamp
+            : undefined,
+        },
       };
     } catch (error: any) {
-      await this.closeClient();
       return this.createErrorResult(error);
     }
   }
@@ -261,7 +354,7 @@ export class XrplDriver {
    * Update an XRPL DID
    * @param did - DID to update
    * @param document - Updated DID Document
-   * @param privateKey - Private key (seed) for the account
+   * @param privateKey - Optional private key (seed) to use
    * @returns DID Resolution Result
    */
   async update(
@@ -270,9 +363,42 @@ export class XrplDriver {
     privateKey?: string
   ): Promise<DIDResolutionResult> {
     try {
-      // Extract address from DID
+      // Process fee payment if fee service is configured
+      if (this.feeService) {
+        // Check if user has sufficient balance
+        const hasSufficientBalance = await this.feeService.hasSufficientBalance(
+          'update'
+        );
+        if (!hasSufficientBalance) {
+          return this.createErrorResult(
+            new Error('Insufficient token balance for update operation')
+          );
+        }
+
+        // Pay the fee
+        const feePaymentSuccess = await this.feeService.payUpdateFee();
+        if (!feePaymentSuccess) {
+          return this.createErrorResult(
+            new Error('Fee payment failed for update operation')
+          );
+        }
+      }
+
+      // Extract XRPL address from DID
       const address = this.extractAddressFromDid(did);
+
+      // Initialize XRPL client
       const client = await this.initClient();
+
+      // Store updated DID Document in account's Domain field
+      const didDocumentHex = convertStringToHex(
+        JSON.stringify({
+          ...document,
+          id: did,
+        })
+      );
+
+      let result: any;
 
       // If wallet adapter is provided, use it
       if (this.walletAdapter) {
@@ -284,19 +410,15 @@ export class XrplDriver {
           }
         }
 
-        // Verify that the wallet address matches the DID address
+        // Get address from wallet
         const walletAddress = await this.walletAdapter.getAddress();
-        if (walletAddress !== address) {
-          throw new Error('Wallet address does not match DID address');
-        }
 
-        // Update DID Document in account's Domain field
-        const didDocumentHex = convertStringToHex(
-          JSON.stringify({
-            ...document,
-            id: did,
-          })
-        );
+        // Verify wallet address matches DID address
+        if (walletAddress !== address) {
+          throw new Error(
+            `Wallet address ${walletAddress} does not match DID address ${address}`
+          );
+        }
 
         const accountSet = {
           TransactionType: 'AccountSet',
@@ -310,83 +432,54 @@ export class XrplDriver {
         );
 
         // Submit transaction
-        const result = await client.submit(signedTxBlob);
-
-        await this.closeClient();
-
-        // Create a new object to avoid duplicate 'id' property
-        const didDocument: DIDDocument = {
-          id: did,
-          ...(document as any), // Remove DIDDocument type to avoid duplicate 'id' property
-        };
-
-        // Return DID Resolution Result
-        return {
-          didDocument,
-          didResolutionMetadata: {
-            contentType: 'application/did+json',
-          },
-          didDocumentMetadata: {
-            updated: new Date().toISOString(),
-            versionId: result.result.tx_json.hash,
-          },
-        };
+        result = await client.submit(signedTxBlob);
       } else {
         // Legacy flow using xrpl.js Wallet
         if (!privateKey) {
           throw new Error(
-            'Private key is required when wallet adapter is not provided'
+            'Private key is required for update when no wallet adapter is provided'
           );
         }
 
+        // Create wallet from private key
         const wallet = Wallet.fromSeed(privateKey);
 
-        // Verify that the wallet address matches the DID address
+        // Verify wallet address matches DID address
         if (wallet.address !== address) {
-          throw new Error('Private key does not match DID address');
+          throw new Error(
+            `Wallet address ${wallet.address} does not match DID address ${address}`
+          );
         }
-
-        // Update DID Document in account's Domain field
-        const didDocumentHex = convertStringToHex(
-          JSON.stringify({
-            ...document,
-            id: did,
-          })
-        );
 
         const accountSet = {
           TransactionType: 'AccountSet',
-          Account: wallet.address,
+          Account: address,
           Domain: didDocumentHex.slice(0, 256), // Domain field has a size limit
         } as any; // Type assertion to avoid TypeScript errors with xrpl.js
 
         // Submit transaction
         const prepared = await client.autofill(accountSet);
         const signed = wallet.sign(prepared);
-        const result = await client.submitAndWait(signed.tx_blob);
+        result = await client.submitAndWait(signed.tx_blob);
+      }
 
-        await this.closeClient();
+      await this.closeClient();
 
-        // Create a new object to avoid duplicate 'id' property
-        const didDocument: DIDDocument = {
+      // Return updated DID document
+      return {
+        didDocument: {
           id: did,
           ...(document as any), // Remove DIDDocument type to avoid duplicate 'id' property
-        };
-
-        // Return DID Resolution Result
-        return {
-          didDocument,
-          didResolutionMetadata: {
-            contentType: 'application/did+json',
-          },
-          didDocumentMetadata: {
-            updated: new Date().toISOString(),
-            versionId: result.result.hash,
-          },
-        };
-      }
+        },
+        didResolutionMetadata: {
+          contentType: 'application/did+json',
+        },
+        didDocumentMetadata: {
+          updated: new Date().toISOString(),
+          versionId: result.result.tx_json?.hash || result.result.hash,
+        },
+      };
     } catch (error: any) {
-      await this.closeClient();
       return this.createErrorResult(error);
     }
   }
@@ -394,7 +487,7 @@ export class XrplDriver {
   /**
    * Deactivate an XRPL DID
    * @param did - DID to deactivate
-   * @param privateKey - Private key (seed) for the account
+   * @param privateKey - Optional private key (seed) to use
    * @returns DID Resolution Result
    */
   async deactivate(
@@ -402,9 +495,55 @@ export class XrplDriver {
     privateKey?: string
   ): Promise<DIDResolutionResult> {
     try {
-      // Extract address from DID
+      // Process fee payment if fee service is configured
+      if (this.feeService) {
+        // Check if user has sufficient balance
+        const hasSufficientBalance = await this.feeService.hasSufficientBalance(
+          'deactivate'
+        );
+        if (!hasSufficientBalance) {
+          return this.createErrorResult(
+            new Error('Insufficient token balance for deactivate operation')
+          );
+        }
+
+        // Pay the fee
+        const feePaymentSuccess = await this.feeService.payDeactivateFee();
+        if (!feePaymentSuccess) {
+          return this.createErrorResult(
+            new Error('Fee payment failed for deactivate operation')
+          );
+        }
+      }
+
+      // Extract XRPL address from DID
       const address = this.extractAddressFromDid(did);
+
+      // Initialize XRPL client
       const client = await this.initClient();
+
+      // Create a deactivated DID document
+      const deactivatedDocument = {
+        id: did,
+        '@context': ['https://www.w3.org/ns/did/v1'],
+        controller: [],
+        verificationMethod: [],
+        authentication: [],
+        assertionMethod: [],
+        keyAgreement: [],
+        capabilityInvocation: [],
+        capabilityDelegation: [],
+        service: [],
+        alsoKnownAs: [],
+        deactivated: true,
+      };
+
+      // Store deactivated DID Document in account's Domain field
+      const didDocumentHex = convertStringToHex(
+        JSON.stringify(deactivatedDocument)
+      );
+
+      let result: any;
 
       // If wallet adapter is provided, use it
       if (this.walletAdapter) {
@@ -416,21 +555,20 @@ export class XrplDriver {
           }
         }
 
-        // Verify that the wallet address matches the DID address
+        // Get address from wallet
         const walletAddress = await this.walletAdapter.getAddress();
-        if (walletAddress !== address) {
-          throw new Error('Wallet address does not match DID address');
-        }
 
-        // Create an empty DID document
-        const emptyDocumentHex = convertStringToHex(
-          JSON.stringify({ id: did, deactivated: true })
-        );
+        // Verify wallet address matches DID address
+        if (walletAddress !== address) {
+          throw new Error(
+            `Wallet address ${walletAddress} does not match DID address ${address}`
+          );
+        }
 
         const accountSet = {
           TransactionType: 'AccountSet',
           Account: address,
-          Domain: emptyDocumentHex.slice(0, 256), // Domain field has a size limit
+          Domain: didDocumentHex.slice(0, 256), // Domain field has a size limit
         };
 
         // Sign transaction using wallet adapter
@@ -439,70 +577,52 @@ export class XrplDriver {
         );
 
         // Submit transaction
-        const result = await client.submit(signedTxBlob);
-
-        await this.closeClient();
-
-        // Return DID Resolution Result
-        return {
-          didDocument: { id: did },
-          didResolutionMetadata: {
-            contentType: 'application/did+json',
-          },
-          didDocumentMetadata: {
-            deactivated: true,
-            updated: new Date().toISOString(),
-            versionId: result.result.tx_json.hash,
-          },
-        };
+        result = await client.submit(signedTxBlob);
       } else {
         // Legacy flow using xrpl.js Wallet
         if (!privateKey) {
           throw new Error(
-            'Private key is required when wallet adapter is not provided'
+            'Private key is required for deactivation when no wallet adapter is provided'
           );
         }
 
+        // Create wallet from private key
         const wallet = Wallet.fromSeed(privateKey);
 
-        // Verify that the wallet address matches the DID address
+        // Verify wallet address matches DID address
         if (wallet.address !== address) {
-          throw new Error('Private key does not match DID address');
+          throw new Error(
+            `Wallet address ${wallet.address} does not match DID address ${address}`
+          );
         }
-
-        // Create an empty DID document
-        const emptyDocumentHex = convertStringToHex(
-          JSON.stringify({ id: did, deactivated: true })
-        );
 
         const accountSet = {
           TransactionType: 'AccountSet',
-          Account: wallet.address,
-          Domain: emptyDocumentHex.slice(0, 256), // Domain field has a size limit
+          Account: address,
+          Domain: didDocumentHex.slice(0, 256), // Domain field has a size limit
         } as any; // Type assertion to avoid TypeScript errors with xrpl.js
 
         // Submit transaction
         const prepared = await client.autofill(accountSet);
         const signed = wallet.sign(prepared);
-        const result = await client.submitAndWait(signed.tx_blob);
-
-        await this.closeClient();
-
-        // Return DID Resolution Result
-        return {
-          didDocument: { id: did },
-          didResolutionMetadata: {
-            contentType: 'application/did+json',
-          },
-          didDocumentMetadata: {
-            deactivated: true,
-            updated: new Date().toISOString(),
-            versionId: result.result.hash,
-          },
-        };
+        result = await client.submitAndWait(signed.tx_blob);
       }
-    } catch (error: any) {
+
       await this.closeClient();
+
+      // Return deactivated DID document
+      return {
+        didDocument: deactivatedDocument,
+        didResolutionMetadata: {
+          contentType: 'application/did+json',
+        },
+        didDocumentMetadata: {
+          deactivated: true,
+          updated: new Date().toISOString(),
+          versionId: result.result.tx_json?.hash || result.result.hash,
+        },
+      };
+    } catch (error: any) {
       return this.createErrorResult(error);
     }
   }
@@ -523,7 +643,7 @@ export class XrplDriver {
   }
 
   /**
-   * Create error result
+   * Create an error result
    * @param error - Error to create result from
    * @returns DID Resolution Result with error
    * @private
