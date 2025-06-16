@@ -30,7 +30,7 @@ We are committed to providing a welcoming and inclusive experience for everyone.
 1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/Vagabond-Fuse.git
+   git clone https://github.com/vagabond-cloud/Vagabond-Fuse.git
    cd Vagabond-Fuse
    ```
 3. Install dependencies:
