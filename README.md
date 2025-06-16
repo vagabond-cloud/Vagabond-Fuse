@@ -568,7 +568,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## License
 
-Vagabond-Fuse is licensed under the [MIT License](LICENSE).
+Vagabond-Fuse is licensed under the [MIT License](LICENSE.md).
 
 ## XRPL Token Payment
 
