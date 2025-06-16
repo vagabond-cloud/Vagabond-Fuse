@@ -647,5 +647,3 @@ const createResult = await xrplDriver.create(didDocument);
 ### Example
 
 See the full example in [examples/xrpl-token-payment-example.ts](examples/xrpl-token-payment-example.ts).
-
-> > > > > > > 5dd59c0bc6b40daef0e531cbd853cd8221ad8929
