@@ -546,9 +546,8 @@ pnpm test:integration
 
 ### Getting Help
 
-- Check the [Documentation](Documentation.md)
-- Join our [Discord community](https://discord.gg/cs-sif)
-- Open an [issue](https://github.com/vagabond/cs-sif/issues)
+- Check the [Documentation](DOCS.md)
+- Open an [issue](https://github.com/vagabond-cloud/Vagabond-Fuse/issues)
 - Contact support at support@cs-sif.org
 
 ## Next Steps
