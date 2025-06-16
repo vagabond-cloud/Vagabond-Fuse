@@ -1,0 +1,13 @@
+Context: XRPL DID plug-in for did-gateway (TypeScript).
+
+Steps:
+1. Add `packages/did-gateway/src/methods/xrpl.ts` with
+   createDid / resolveDid / updateDid using xrpl.js Hooks v3.
+ 2. Write Jest unit tests mocking rippled RPC.
+-3. Update docs & README.
++3. Accept a WalletAdapter instance; default to XummAdapter.
++4. Update docs & README with “Bring-your-own-wallet” instructions.
+-4. Keep coverage ≥ 90 %.
+-5. No changes outside /packages/did-gateway/ without rule update.
++5. Keep coverage ≥ 90 %. Mock adapter in unit tests.
++6. No changes outside /packages/did-gateway/ or /packages/wallet-kit/adapters/ without rule update.

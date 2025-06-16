@@ -1,0 +1,43 @@
+{
+    "name": "fuse-examples",
+    "version": "0.1.0",
+    "description": "Examples for Fuse",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "wallet": "tsx wallet-example.ts",
+        "did": "tsx did-gateway-example.ts",
+        "did:xrpl": "tsx did-gateway-xrpl-example.ts",
+        "did:xrpl:hooks": "tsx did-gateway-xrpl-hooks-example.ts",
+        "policy": "tsx policy-utils-example.ts",
+        "integration": "tsx integration-example.ts",
+        "integration:mock": "tsx integration-example-mock.ts",
+        "credential-hub": "python credential-hub-example.py",
+        "credential-hub:stats": "python credential-hub-stats-example.py",
+        "credential-hub:stats:ts": "tsx credential-hub-stats-example.ts",
+        "policy-engine": "python policy-engine-example.py",
+        "policy-engine:wasm": "python policy-engine-wasm-example.py",
+        "policy-engine:service": "python policy-engine-service-wasm-example.py",
+        "policy-engine:real-world": "python policy-engine-real-world-example.py",
+        "policy-engine:wasm:ts": "tsx policy-engine-wasm-example.ts",
+        "policy-engine:service:ts": "tsx policy-engine-service-wasm-example.ts",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "run-all": "./run-all-examples.sh"
+    },
+    "dependencies": {
+        "@fuse/did-gateway": "file:../packages/did-gateway",
+        "@fuse/policy-utils": "file:../packages/policy-utils",
+        "@fuse/wallet-kit": "file:../packages/wallet-kit",
+        "@ledgerhq/hw-transport-webusb": "^6.29.6",
+        "axios": "^1.10.0",
+        "uuid": "^9.0.1",
+        "xumm-sdk": "^1.11.2"
+    },
+    "devDependencies": {
+        "@types/node": "^24.0.1",
+        "@types/uuid": "^9.0.8",
+        "ts-node": "^10.9.1",
+        "tsx": "^4.7.0",
+        "typescript": "^5.0.0"
+    }
+}

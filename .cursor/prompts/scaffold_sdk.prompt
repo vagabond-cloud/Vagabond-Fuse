@@ -1,0 +1,17 @@
+Goal: scaffold the hybrid monorepo.
+
+Tasks (TypeScript):
+1. Under packages/ create:
+   - wallet-kit/  (React-Native + WASM key store)
+   - did-gateway/ (method-agnostic CRUD; start with did:ion & did:polygon)
+   - policy-utils/ (JSON-Logic helpers that compile to Rego WASM)
+
+Tasks (Python):
+2. Under services/ create:
+   - credential-hub/ (FastAPI, SnarkJS via node subprocess, Poetry)
+   - policy-engine/  (FastAPI, OPA WASM execution)
+
+General:
+- Each package/service has placeholder unit tests (Jest or Pytest).
+- Lint, test, build must pass via `pnpm test`.
+- Respect /packages vs /services boundary defined in rules.

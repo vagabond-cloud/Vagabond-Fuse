@@ -1,0 +1,43 @@
+{
+    "name": "@fuse/did-gateway",
+    "version": "0.1.0",
+    "description": "Method-agnostic CRUD for DIDs (did:ion, did:polygon & did:xrpl)",
+    "main": "dist/index.js",
+    "module": "dist/index.mjs",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsup src/index.ts --format cjs,esm --dts",
+        "test": "jest",
+        "lint": "eslint src --ext .ts,.tsx",
+        "clean": "rimraf dist"
+    },
+    "keywords": [
+        "did",
+        "decentralized-identity",
+        "ion",
+        "polygon",
+        "xrpl"
+    ],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "@decentralized-identity/ion-tools": "^1.0.5",
+        "ethers": "^6.8.0",
+        "xrpl": "^4.3.0"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.5.5",
+        "@types/node": "^20.8.2",
+        "@typescript-eslint/eslint-plugin": "^8.34.0",
+        "@typescript-eslint/parser": "^8.34.0",
+        "eslint": "^8.50.0",
+        "jest": "^29.7.0",
+        "rimraf": "^5.0.5",
+        "ts-jest": "^29.1.1",
+        "tsup": "^7.2.0",
+        "typescript": "^5.2.2"
+    }
+}

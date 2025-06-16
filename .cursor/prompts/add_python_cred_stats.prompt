@@ -1,0 +1,8 @@
+Goal: extend Python Credential-Hub with /stats endpoint.
+
+Tasks:
+1. In services/credential-hub:
+   - Add route GET /stats returning JSON { issued, verified, revoked }.
+   - Pull data from ClickHouse via `clickhouse-connect` async driver.
+2. Write Pytest covering happy path + ClickHouse failure fallback.
+3. Update OpenAPI docs (`fastapi.openapi_url`).

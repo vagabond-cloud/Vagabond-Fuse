@@ -1,0 +1,30 @@
+{
+  "name": "fuse",
+  "version": "0.1.0",
+  "description": "Fuse Monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "pnpm run -r test",
+    "lint": "pnpm run -r lint",
+    "build": "pnpm run -r build",
+    "clean": "pnpm run -r clean"
+  },
+  "keywords": [
+    "decentralized",
+    "identity",
+    "wallet",
+    "credentials",
+    "policy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "axios": "^1.10.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.0",
+    "uuid": "^11.1.0"
+  }
+}
