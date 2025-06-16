@@ -27,5 +27,8 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.0.0",
     "uuid": "^11.1.0"
+  },
+  "dependencies": {
+    "xrpl": "^4.3.0"
   }
 }
