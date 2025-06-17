@@ -1,0 +1,17 @@
+{
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "dateOfBirth": "1990-01-01",
+  "nationality": "Germany",
+  "passportNumber": "P12345678",
+  "address": {
+    "streetAddress": "123 Main Street",
+    "locality": "Berlin",
+    "postalCode": "10115",
+    "country": "DE"
+  },
+  "contactInformation": {
+    "email": "jane.doe@example.com",
+    "phone": "+491234567890"
+  }
+}

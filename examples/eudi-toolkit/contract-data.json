@@ -1,0 +1,9 @@
+{
+  "title": "Service Agreement",
+  "description": "Agreement for consulting services",
+  "parties": ["did:xrpl:r38akWUxkq3etzPMNQKsm445H85aSGF418", "did:xrpl:rNxPoYxatkmBjKnXVM4Gg5Y49cVCB3tavn"],
+  "contractHash": "0x7a44a8c9c4df93f0e500c3f2e49e64c8e865d97136ae7b5af7d7a0fe11dbdf84",
+  "validFrom": "2025-06-18",
+  "validUntil": "2026-06-18",
+  "jurisdiction": "Germany"
+}

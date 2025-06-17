@@ -1,7 +1,7 @@
 {
-  "id": "urn:uuid:7306b6f3-d50f-4e95-94ee-ad43c64b2edf",
+  "id": "urn:uuid:2c52deed-159d-4e69-a4b9-ac98b2a2650a",
   "type": "DrivingLicenseProof",
-  "credentialId": "urn:uuid:da1cc2b4-a17b-463c-b33e-a76fbcba66af",
+  "credentialId": "urn:uuid:ebc0afbe-8855-4f67-93a8-baaa7db42dd6",
   "circuit": "selective-disclosure",
   "proof": {
     "pi_a": [
@@ -38,5 +38,5 @@
     "firstName": "Jane",
     "dateOfBirth": "1990-01-01"
   },
-  "created": "2025-06-17T21:51:38.805Z"
+  "created": "2025-06-17T22:28:26.874Z"
 }

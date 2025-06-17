@@ -1,0 +1,16 @@
+{
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "dateOfBirth": "1990-01-01",
+  "nationality": "Germany",
+  "identificationNumber": "ID-12345678",
+  "idType": "National ID",
+  "address": {
+    "streetAddress": "123 Main Street",
+    "locality": "Berlin",
+    "postalCode": "10115",
+    "country": "DE"
+  },
+  "contactEmail": "jane.doe@example.com",
+  "contactPhone": "+491234567890"
+}

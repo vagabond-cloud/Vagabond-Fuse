@@ -1,0 +1,13 @@
+{
+  "studentName": "Jane Doe",
+  "studentId": "STU-12345",
+  "dateOfBirth": "1990-01-01",
+  "institution": "Berlin University of Technology",
+  "institutionId": "BerlinTech-123",
+  "degree": "Master of Science",
+  "field": "Computer Science",
+  "awardDate": "2022-06-15",
+  "graduationDate": "2022-06-30",
+  "grade": "A",
+  "honors": ["Magna Cum Laude"]
+}

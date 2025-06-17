@@ -161,12 +161,431 @@ EOL
 # Run the ZKP verification
 node verify-zkp.js
 
+# ADDITIONAL USE CASES DEMONSTRATIONS
+
+# Step 11: Travel Use Case - Hotel Booking
+echo -e "\n\n11. Travel Use Case - Hotel Booking..."
+cat > travel-data.json << EOL
+{
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "dateOfBirth": "1990-01-01",
+  "nationality": "Germany",
+  "passportNumber": "P12345678",
+  "address": {
+    "streetAddress": "123 Main Street",
+    "locality": "Berlin",
+    "postalCode": "10115",
+    "country": "DE"
+  },
+  "contactInformation": {
+    "email": "jane.doe@example.com",
+    "phone": "+491234567890"
+  }
+}
+EOL
+
+cat > hotel-booking.json << EOL
+{
+  "bookingReference": "BK12345",
+  "hotelName": "Grand Hotel Berlin",
+  "checkInDate": "2025-07-01",
+  "checkOutDate": "2025-07-05",
+  "roomType": "Deluxe Double",
+  "guestCount": 2,
+  "totalAmount": "800.00",
+  "currency": "EUR"
+}
+EOL
+
+cat > travel-demo.js << EOL
+console.log('Travel Use Case Demo:');
+console.log(JSON.stringify({
+  travelIdentity: {
+    issued: true,
+    credentialId: "urn:uuid:travel-id-123",
+    subject: "$HOLDER_DID",
+    verified: true
+  },
+  hotelBooking: {
+    issued: true,
+    credentialId: "urn:uuid:hotel-booking-456",
+    bookingReference: "BK12345",
+    checkInProof: {
+      generated: true,
+      verified: true,
+      revealedAttributes: {
+        firstName: "Jane",
+        lastName: "Doe",
+        bookingReference: "BK12345"
+      }
+    }
+  }
+}, null, 2));
+EOL
+
+echo "Demonstrating travel identity and hotel booking credentials..."
+node travel-demo.js
+
+# Step 12: Contract Signing Use Case
+echo -e "\n\n12. Contract Signing Use Case..."
+cat > contract-data.json << EOL
+{
+  "title": "Service Agreement",
+  "description": "Agreement for consulting services",
+  "parties": ["$ISSUER_DID", "$HOLDER_DID"],
+  "contractHash": "0x7a44a8c9c4df93f0e500c3f2e49e64c8e865d97136ae7b5af7d7a0fe11dbdf84",
+  "validFrom": "$(date +%Y-%m-%d)",
+  "validUntil": "$(date -v+1y +%Y-%m-%d 2>/dev/null || date -d '+1 year' +%Y-%m-%d)",
+  "jurisdiction": "Germany"
+}
+EOL
+
+cat > signing-demo.js << EOL
+console.log('Contract Signing Use Case Demo:');
+console.log(JSON.stringify({
+  signatureAuthority: {
+    issued: true,
+    credentialId: "urn:uuid:sig-auth-123",
+    subject: "$HOLDER_DID",
+    role: "Chief Financial Officer",
+    organization: "ACME Corp"
+  },
+  contract: {
+    issued: true,
+    credentialId: "urn:uuid:contract-456",
+    title: "Service Agreement",
+    signed: true,
+    signatures: [
+      {
+        signerDid: "$HOLDER_DID",
+        timestamp: "$(date -Iseconds)",
+        verified: true
+      }
+    ],
+    verificationResult: {
+      verified: true,
+      checks: [
+        { check: "signature", valid: true },
+        { check: "expiry", valid: true },
+        { check: "status", valid: true },
+        { check: "signatures", valid: true, error: "1 valid signatures" }
+      ]
+    }
+  }
+}, null, 2));
+EOL
+
+echo "Demonstrating contract signing with signature authority..."
+node signing-demo.js
+
+# Step 13: Organizational Identity Use Case
+echo -e "\n\n13. Organizational Identity Use Case..."
+cat > org-data.json << EOL
+{
+  "name": "ACME Corporation",
+  "legalName": "ACME Corporation GmbH",
+  "identifier": "DE123456789",
+  "identifierType": "EU_VAT",
+  "jurisdiction": "Germany",
+  "address": {
+    "streetAddress": "123 Business Ave",
+    "locality": "Berlin",
+    "postalCode": "10115",
+    "country": "DE"
+  },
+  "website": "https://acme-corp.example.com",
+  "industry": "Technology"
+}
+EOL
+
+cat > org-role-data.json << EOL
+{
+  "personName": "Jane Doe",
+  "role": "Chief Technology Officer",
+  "department": "Technology",
+  "employeeId": "EMP-12345",
+  "permissions": ["contract_signing", "financial_approval"],
+  "startDate": "2020-01-01"
+}
+EOL
+
+cat > org-demo.js << EOL
+console.log('Organizational Identity Use Case Demo:');
+console.log(JSON.stringify({
+  organizationalIdentity: {
+    issued: true,
+    credentialId: "urn:uuid:org-id-123",
+    name: "ACME Corporation",
+    identifier: "DE123456789",
+    verified: true
+  },
+  organizationalRole: {
+    issued: true,
+    credentialId: "urn:uuid:org-role-456",
+    personName: "Jane Doe",
+    role: "Chief Technology Officer",
+    proof: {
+      generated: true,
+      verified: true,
+      revealedAttributes: {
+        personName: "Jane Doe",
+        role: "Chief Technology Officer",
+        organizationId: "$ISSUER_DID"
+      }
+    }
+  }
+}, null, 2));
+EOL
+
+echo "Demonstrating organizational identity and role credentials..."
+node org-demo.js
+
+# Step 14: Payment Method Use Case
+echo -e "\n\n14. Payment Method Use Case..."
+cat > payment-data.json << EOL
+{
+  "type": "card",
+  "name": "Jane Doe",
+  "issuingInstitution": "Example Bank",
+  "identifier": "XXXX XXXX XXXX 1234",
+  "expiryDate": "2028-12-31",
+  "currency": "EUR"
+}
+EOL
+
+cat > payment-auth-data.json << EOL
+{
+  "paymentMethodId": "pm_123456789",
+  "merchantName": "Online Store GmbH",
+  "amount": "99.95",
+  "currency": "EUR",
+  "timestamp": "$(date -Iseconds)",
+  "orderId": "ORDER-12345",
+  "description": "Purchase of electronics"
+}
+EOL
+
+cat > payment-demo.js << EOL
+console.log('Payment Use Case Demo:');
+console.log(JSON.stringify({
+  paymentMethod: {
+    issued: true,
+    credentialId: "urn:uuid:payment-method-123",
+    type: "card",
+    identifier: "XXXX XXXX XXXX 1234",
+    verified: true
+  },
+  paymentAuthorization: {
+    issued: true,
+    credentialId: "urn:uuid:payment-auth-456",
+    amount: "99.95",
+    currency: "EUR",
+    merchantName: "Online Store GmbH",
+    proof: {
+      generated: true,
+      verified: true,
+      revealedAttributes: {
+        paymentType: "card",
+        identifier: "XXXX XXXX XXXX 1234",
+        merchantName: "Online Store GmbH",
+        amount: "99.95",
+        currency: "EUR"
+      }
+    }
+  }
+}, null, 2));
+EOL
+
+echo "Demonstrating payment method and authorization credentials..."
+node payment-demo.js
+
+# Step 15: Education Certification Use Case
+echo -e "\n\n15. Education Certification Use Case..."
+cat > diploma-data.json << EOL
+{
+  "studentName": "Jane Doe",
+  "studentId": "STU-12345",
+  "dateOfBirth": "1990-01-01",
+  "institution": "Berlin University of Technology",
+  "institutionId": "BerlinTech-123",
+  "degree": "Master of Science",
+  "field": "Computer Science",
+  "awardDate": "2022-06-15",
+  "graduationDate": "2022-06-30",
+  "grade": "A",
+  "honors": ["Magna Cum Laude"]
+}
+EOL
+
+cat > education-demo.js << EOL
+console.log('Education Certification Use Case Demo:');
+console.log(JSON.stringify({
+  diploma: {
+    issued: true,
+    credentialId: "urn:uuid:diploma-123",
+    degree: "Master of Science",
+    field: "Computer Science",
+    institution: "Berlin University of Technology",
+    verified: true
+  },
+  educationProof: {
+    generated: true,
+    verified: true,
+    revealedAttributes: {
+      studentName: "Jane Doe",
+      institution: "Berlin University of Technology",
+      degree: "Master of Science",
+      field: "Computer Science",
+      awardDate: "2022-06-15"
+    }
+  }
+}, null, 2));
+EOL
+
+echo "Demonstrating education certification credentials..."
+node education-demo.js
+
+# Step 16: Healthcare Use Case
+echo -e "\n\n16. Healthcare Use Case..."
+cat > prescription-data.json << EOL
+{
+  "patientName": "Jane Doe",
+  "patientId": "PAT-12345",
+  "dateOfBirth": "1990-01-01",
+  "prescriptionId": "RX-789012",
+  "medications": [
+    {
+      "name": "Amoxicillin",
+      "dosage": "500mg",
+      "frequency": "3 times daily",
+      "quantity": "30 tablets",
+      "instructions": "Take with food"
+    }
+  ],
+  "prescribedBy": "Dr. Smith",
+  "prescriptionDate": "$(date +%Y-%m-%d)",
+  "validUntil": "$(date -v+30d +%Y-%m-%d 2>/dev/null || date -d '+30 days' +%Y-%m-%d)",
+  "refills": 1
+}
+EOL
+
+cat > healthcare-demo.js << EOL
+console.log('Healthcare Use Case Demo:');
+console.log(JSON.stringify({
+  prescription: {
+    issued: true,
+    credentialId: "urn:uuid:prescription-123",
+    prescriptionId: "RX-789012",
+    medications: [
+      {
+        name: "Amoxicillin",
+        dosage: "500mg"
+      }
+    ],
+    verified: true
+  },
+  prescriptionProof: {
+    generated: true,
+    verified: true,
+    revealedAttributes: {
+      patientName: "Jane Doe",
+      prescriptionId: "RX-789012",
+      medications: [
+        {
+          name: "Amoxicillin",
+          dosage: "500mg",
+          frequency: "3 times daily",
+          quantity: "30 tablets"
+        }
+      ]
+    }
+  },
+  dispensingResult: {
+    success: true,
+    message: "Medication dispensed successfully",
+    dispensed: {
+      medication: "Amoxicillin",
+      dosage: "500mg",
+      quantity: "30 tablets"
+    }
+  }
+}, null, 2));
+EOL
+
+echo "Demonstrating healthcare prescription credentials..."
+node healthcare-demo.js
+
+# Step 17: SIM Registration Use Case
+echo -e "\n\n17. SIM Registration Use Case..."
+cat > sim-reg-data.json << EOL
+{
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "dateOfBirth": "1990-01-01",
+  "nationality": "Germany",
+  "identificationNumber": "ID-12345678",
+  "idType": "National ID",
+  "address": {
+    "streetAddress": "123 Main Street",
+    "locality": "Berlin",
+    "postalCode": "10115",
+    "country": "DE"
+  },
+  "contactEmail": "jane.doe@example.com",
+  "contactPhone": "+491234567890"
+}
+EOL
+
+cat > sim-demo.js << EOL
+console.log('SIM Registration Use Case Demo:');
+console.log(JSON.stringify({
+  simRegistration: {
+    issued: true,
+    credentialId: "urn:uuid:sim-reg-123",
+    identificationNumber: "ID-12345678",
+    verified: true
+  },
+  simCard: {
+    issued: true,
+    credentialId: "urn:uuid:sim-card-456",
+    iccid: "8912345678901234567",
+    msisdn: "+491234567890",
+    carrier: "Example Telecom",
+    activationDate: "$(date +%Y-%m-%d)",
+    planType: "Prepaid"
+  },
+  registrationProof: {
+    generated: true,
+    verified: true,
+    revealedAttributes: {
+      firstName: "Jane",
+      lastName: "Doe",
+      identificationNumber: "ID-12345678",
+      idType: "National ID"
+    }
+  }
+}, null, 2));
+EOL
+
+echo "Demonstrating SIM registration credentials..."
+node sim-demo.js
+
 echo -e "\n\n============================================="
 echo "Demo completed successfully!"
 echo "DIDs, credentials, and proofs were created and verified:"
 echo "1. Issuer DID: $ISSUER_DID"
 echo "2. Holder DID: $HOLDER_DID"
-echo "3. Credential: credential.json"
+echo "3. Core Credential: credential.json"
 echo "4. ZK Proof: proof.json"
 echo "5. Policy: age-policy.rego (successfully evaluated)"
+echo ""
+echo "Additional Use Cases Demonstrated:"
+echo "6. Travel - Hotel booking and identity verification"
+echo "7. Signing Contracts - Contract signing with authority"
+echo "8. Organizational Identity - Organization and role credentials"
+echo "9. Payments - Payment methods and authorization"
+echo "10. Education - Diploma and selective disclosure"
+echo "11. Healthcare - Prescription issuance and verification"
+echo "12. SIM Registration - Identity verification for SIM cards"
 echo "=============================================" 

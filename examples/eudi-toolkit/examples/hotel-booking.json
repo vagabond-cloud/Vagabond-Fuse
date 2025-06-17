@@ -1,0 +1,10 @@
+{
+  "bookingReference": "BK12345",
+  "hotelName": "Grand Hotel Berlin",
+  "checkInDate": "2025-07-01",
+  "checkOutDate": "2025-07-05",
+  "roomType": "Deluxe Double",
+  "guestCount": 2,
+  "totalAmount": "800.00",
+  "currency": "EUR"
+}

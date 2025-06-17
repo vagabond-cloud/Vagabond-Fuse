@@ -1,0 +1,19 @@
+{
+  "patientName": "Jane Doe",
+  "patientId": "PAT-12345",
+  "dateOfBirth": "1990-01-01",
+  "prescriptionId": "RX-789012",
+  "medications": [
+    {
+      "name": "Amoxicillin",
+      "dosage": "500mg",
+      "frequency": "3 times daily",
+      "quantity": "30 tablets",
+      "instructions": "Take with food"
+    }
+  ],
+  "prescribedBy": "Dr. Smith",
+  "prescriptionDate": "2025-06-18",
+  "validUntil": "2025-07-18",
+  "refills": 1
+}

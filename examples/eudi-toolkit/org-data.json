@@ -1,0 +1,15 @@
+{
+  "name": "ACME Corporation",
+  "legalName": "ACME Corporation GmbH",
+  "identifier": "DE123456789",
+  "identifierType": "EU_VAT",
+  "jurisdiction": "Germany",
+  "address": {
+    "streetAddress": "123 Business Ave",
+    "locality": "Berlin",
+    "postalCode": "10115",
+    "country": "DE"
+  },
+  "website": "https://acme-corp.example.com",
+  "industry": "Technology"
+}

@@ -1,0 +1,8 @@
+{
+  "personName": "Jane Doe",
+  "role": "Chief Technology Officer",
+  "department": "Technology",
+  "employeeId": "EMP-12345",
+  "permissions": ["contract_signing", "financial_approval"],
+  "startDate": "2020-01-01"
+}

@@ -1,0 +1,8 @@
+{
+  "type": "card",
+  "name": "Jane Doe",
+  "issuingInstitution": "Example Bank",
+  "identifier": "XXXX XXXX XXXX 1234",
+  "expiryDate": "2028-12-31",
+  "currency": "EUR"
+}

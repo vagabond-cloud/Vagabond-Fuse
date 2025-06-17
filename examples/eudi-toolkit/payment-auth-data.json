@@ -1,0 +1,9 @@
+{
+  "paymentMethodId": "pm_123456789",
+  "merchantName": "Online Store GmbH",
+  "amount": "99.95",
+  "currency": "EUR",
+  "timestamp": "2025-06-18T01:26:58+03:00",
+  "orderId": "ORDER-12345",
+  "description": "Purchase of electronics"
+}
