@@ -1,0 +1,14 @@
+
+> eudi-toolkit@0.1.0 start
+> ts-node examples/cli.ts policy create -n Age Verification -f demo_files/gdpr_policy.rego -d Verify the user is at least 18 years old -t rego
+
+Policy created:
+{
+  "id": "policy-f06e0ba5-e910-4fea-8bc5-a8a1d1e7ace0",
+  "name": "Age Verification",
+  "description": "Verify the user is at least 18 years old",
+  "content": "package gdpr\n\ndefault allow = false\n\n# Allow if user has given consent and data is used for the specified purpose\nallow {\n    input.user_consent == true\n    input.purpose == \"age-verification\"\n    input.data.age >= 18\n}\n\n# Provide a reason for the decision\nreason = \"Age verification passed\" {\n    allow\n}\n\nreason = \"Age verification failed or consent not given\" {\n    not allow\n}\n",
+  "type": "rego",
+  "created": "2025-06-17T21:23:19.819Z",
+  "updated": "2025-06-17T21:23:19.819Z"
+}

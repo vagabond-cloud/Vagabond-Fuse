@@ -1,0 +1,23 @@
+{
+    "firstName": "John",
+    "lastName": "Doe",
+    "dateOfBirth": "1990-01-01",
+    "placeOfBirth": "Berlin, Germany",
+    "issueDate": "2020-01-01",
+    "expiryDate": "2030-01-01",
+    "issuingAuthority": "Federal Motor Transport Authority",
+    "licenseNumber": "DE12345678",
+    "categories": [
+        "B",
+        "AM"
+    ],
+    "restrictions": [
+        "Requires glasses"
+    ],
+    "address": {
+        "streetAddress": "123 Main St",
+        "locality": "Berlin",
+        "postalCode": "10115",
+        "country": "Germany"
+    }
+}

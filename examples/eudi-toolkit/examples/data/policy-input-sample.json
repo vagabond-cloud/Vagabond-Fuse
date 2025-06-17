@@ -1,0 +1,14 @@
+{
+    "user": {
+        "consent": true,
+        "allowed_purposes": [
+            "identity_verification",
+            "age_verification"
+        ],
+        "informed_timestamp": "2023-01-01T12:00:00Z"
+    },
+    "purpose": "age_verification",
+    "requested_attributes": {
+        "dateOfBirth": true
+    }
+}

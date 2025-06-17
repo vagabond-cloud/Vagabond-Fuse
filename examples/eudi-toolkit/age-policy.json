@@ -1,0 +1,5 @@
+{
+  "name": "Age Verification Policy",
+  "description": "Verifies that the user is at least 18 years old",
+  "content": "package age_verification\n\ndefault allow = false\n\nallow {\n  input.user_consent == true\n  input.data.age >= 18\n}"
+}

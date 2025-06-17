@@ -1,0 +1,7 @@
+{
+  "purpose": "age-verification",
+  "data": {
+    "age": 33
+  },
+  "user_consent": true
+}
