@@ -1,0 +1,6 @@
+{
+  "personName": "Jane Doe",
+  "role": "Chief Financial Officer",
+  "organization": "ACME Corp",
+  "permissions": ["contract_signing", "financial_approval"]
+}

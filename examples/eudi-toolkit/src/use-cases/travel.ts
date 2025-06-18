@@ -131,6 +131,34 @@ export class TravelUseCase {
     subjectId: string
   ): Promise<VerifiableCredential> {
     // Create the credential
+    // Format dates properly to ensure they're valid ISO strings
+    const formatDate = (dateStr: string): string => {
+      if (!dateStr) {
+        throw new Error(`Date string is undefined or empty`);
+      }
+      
+      try {
+        const date = new Date(dateStr);
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+          throw new Error(`Invalid date: ${dateStr}`);
+        }
+        return date.toISOString();
+      } catch (error) {
+        console.error(`Error formatting date: ${dateStr}`, error);
+        throw new Error(`Invalid date format: ${dateStr}`);
+      }
+    };
+
+    // Validate required fields
+    if (!data.checkInDate) {
+      throw new Error('Check-in date is required');
+    }
+    
+    if (!data.checkOutDate) {
+      throw new Error('Check-out date is required');
+    }
+
     const credential: VerifiableCredential = {
       '@context': [
         'https://www.w3.org/2018/credentials/v1',
@@ -142,14 +170,14 @@ export class TravelUseCase {
       type: ['VerifiableCredential', 'HotelBookingCredential'],
       issuer: issuerId,
       issuanceDate: new Date().toISOString(),
-      expirationDate: new Date(data.checkOutDate).toISOString(), // Valid until checkout
+      expirationDate: formatDate(data.checkOutDate),
       credentialSubject: {
         id: subjectId,
         type: 'HotelBooking',
         bookingReference: data.bookingReference,
         hotelName: data.hotelName,
-        checkInDate: data.checkInDate,
-        checkOutDate: data.checkOutDate,
+        checkInDate: formatDate(data.checkInDate),
+        checkOutDate: formatDate(data.checkOutDate),
         roomType: data.roomType,
         guestCount: data.guestCount,
         totalAmount: data.totalAmount,

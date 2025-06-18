@@ -1,0 +1,36 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.w3.org/2018/credentials/examples/v1",
+    "https://w3id.org/security/suites/ed25519-2020/v1",
+    "https://eudi-wallet.eu/contexts/signature-authority/v1"
+  ],
+  "id": "urn:uuid:29f84710-f2cd-4d07-b86a-046611969998",
+  "type": [
+    "VerifiableCredential",
+    "SignatureAuthorityCredential"
+  ],
+  "issuer": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae",
+  "issuanceDate": "2025-06-18T16:25:51.322Z",
+  "expirationDate": "2026-06-18T16:25:51.323Z",
+  "credentialSubject": {
+    "id": "did:xrpl:rNAZAvNiqhmS3kCAuBXFUnsu6r5nYLacx3",
+    "type": "SignatureAuthority",
+    "role": "Chief Financial Officer",
+    "organization": "ACME Corp",
+    "delegatedPowers": []
+  },
+  "proof": {
+    "type": "Ed25519Signature2020",
+    "created": "2025-06-18T16:25:51.323Z",
+    "verificationMethod": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae#keys-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "mock_signature_for_demo_purposes_only"
+  },
+  "credentialStatus": {
+    "id": "https://eudi-wallet.eu/status/96adb9a9-015c-4d3a-8227-9bf1624be935",
+    "type": "StatusList2021Entry",
+    "statusListIndex": "urn:uuid:9d55bdeb-f5f7-4fa4-9696-51adc1caa4b8",
+    "statusListCredential": "https://eudi-wallet.eu/status/96adb9a9-015c-4d3a-8227-9bf1624be935"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.w3.org/2018/credentials/examples/v1",
+    "https://w3id.org/security/suites/ed25519-2020/v1",
+    "https://eudi-wallet.eu/contexts/contract/v1"
+  ],
+  "id": "contract:bb99f2e4-d89f-43e8-8871-13945ecf249c",
+  "type": [
+    "VerifiableCredential",
+    "ContractCredential"
+  ],
+  "issuer": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae",
+  "issuanceDate": "2025-06-18T16:25:52.344Z",
+  "expirationDate": "2026-06-18",
+  "credentialSubject": {
+    "id": "contract:bb99f2e4-d89f-43e8-8871-13945ecf249c",
+    "type": "Contract",
+    "title": "Service Agreement",
+    "description": "Agreement for consulting services",
+    "parties": [
+      "did:xrpl:r9WFgKrLw35ktUD5e3yP61147xq7fQTZCY",
+      "did:xrpl:r9R6TmdzmAVJs8LEFaCt1bmASoDsPv9syg"
+    ],
+    "contractHash": "0x7a44a8c9c4df93f0e500c3f2e49e64c8e865d97136ae7b5af7d7a0fe11dbdf84",
+    "validFrom": "2025-06-18",
+    "validUntil": "2026-06-18",
+    "jurisdiction": "Germany",
+    "signatures": []
+  },
+  "proof": {
+    "type": "Ed25519Signature2020",
+    "created": "2025-06-18T16:25:52.345Z",
+    "verificationMethod": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae#keys-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "mock_signature_for_demo_purposes_only"
+  },
+  "credentialStatus": {
+    "id": "https://eudi-wallet.eu/status/a03166ea-0966-41d0-82a2-07ac0d8904ca",
+    "type": "StatusList2021Entry",
+    "statusListIndex": "urn:uuid:80188c31-f016-49bc-b42e-83d708ba0718",
+    "statusListCredential": "https://eudi-wallet.eu/status/a03166ea-0966-41d0-82a2-07ac0d8904ca"
+  }
+}

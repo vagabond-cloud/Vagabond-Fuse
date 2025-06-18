@@ -1,7 +1,7 @@
 {
   "title": "Service Agreement",
   "description": "Agreement for consulting services",
-  "parties": ["did:xrpl:r3ocwEyHBiNcNEQ7gD7TMfMpzKQg6V8TtD", "did:xrpl:rndVJ24vtf1CZhKH21ye9xb3zFcK9wC6oD"],
+  "parties": ["did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae", "did:xrpl:rNAZAvNiqhmS3kCAuBXFUnsu6r5nYLacx3"],
   "contractHash": "0x7a44a8c9c4df93f0e500c3f2e49e64c8e865d97136ae7b5af7d7a0fe11dbdf84",
   "validFrom": "2025-06-18",
   "validUntil": "2026-06-18",

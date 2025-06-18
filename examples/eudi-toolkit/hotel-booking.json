@@ -1,10 +1,41 @@
 {
-  "bookingReference": "BK12345",
-  "hotelName": "Grand Hotel Berlin",
-  "checkInDate": "2025-07-01",
-  "checkOutDate": "2025-07-05",
-  "roomType": "Deluxe Double",
-  "guestCount": 2,
-  "totalAmount": "800.00",
-  "currency": "EUR"
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.w3.org/2018/credentials/examples/v1",
+    "https://w3id.org/security/suites/ed25519-2020/v1",
+    "https://eudi-wallet.eu/contexts/hotel-booking/v1"
+  ],
+  "id": "urn:uuid:cbb86216-f306-4cfa-9493-d85fc0e0ecc2",
+  "type": [
+    "VerifiableCredential",
+    "HotelBookingCredential"
+  ],
+  "issuer": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae",
+  "issuanceDate": "2025-06-18T16:25:49.244Z",
+  "expirationDate": "2026-07-07T18:13:19.000Z",
+  "credentialSubject": {
+    "id": "did:xrpl:rNAZAvNiqhmS3kCAuBXFUnsu6r5nYLacx3",
+    "type": "HotelBooking",
+    "bookingReference": "BK12345",
+    "hotelName": "Grand Hotel Berlin",
+    "checkInDate": "2026-07-03T18:13:19.000Z",
+    "checkOutDate": "2026-07-07T18:13:19.000Z",
+    "roomType": "Deluxe Double",
+    "guestCount": 2,
+    "totalAmount": "800.00",
+    "currency": "EUR"
+  },
+  "proof": {
+    "type": "Ed25519Signature2020",
+    "created": "2025-06-18T16:25:49.244Z",
+    "verificationMethod": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae#keys-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "mock_signature_for_demo_purposes_only"
+  },
+  "credentialStatus": {
+    "id": "https://eudi-wallet.eu/status/c9e01c57-d88a-4b62-8ff9-e6cee86092bf",
+    "type": "StatusList2021Entry",
+    "statusListIndex": "urn:uuid:3361668a-049c-48e3-b51c-6e2d1df2eb81",
+    "statusListCredential": "https://eudi-wallet.eu/status/c9e01c57-d88a-4b62-8ff9-e6cee86092bf"
+  }
 }

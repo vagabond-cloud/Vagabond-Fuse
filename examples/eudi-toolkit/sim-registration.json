@@ -3,52 +3,45 @@
     "https://www.w3.org/2018/credentials/v1",
     "https://www.w3.org/2018/credentials/examples/v1",
     "https://w3id.org/security/suites/ed25519-2020/v1",
-    "https://eudi-wallet.eu/contexts/driving-license/v1"
+    "https://eudi-wallet.eu/contexts/sim-registration/v1"
   ],
-  "id": "urn:uuid:a2113aa2-84d0-44b2-b3e1-c3c5c7d4dac0",
+  "id": "urn:uuid:a9f586ce-4389-45e1-9843-16f547566f2c",
   "type": [
     "VerifiableCredential",
-    "DrivingLicenseCredential"
+    "SIMRegistrationCredential"
   ],
   "issuer": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae",
-  "issuanceDate": "2025-06-18T16:25:43.152Z",
-  "expirationDate": "2030-06-18",
+  "issuanceDate": "2025-06-18T16:26:05.531Z",
+  "expirationDate": "2030-06-17T16:26:05.531Z",
   "credentialSubject": {
     "id": "did:xrpl:rNAZAvNiqhmS3kCAuBXFUnsu6r5nYLacx3",
-    "type": "DrivingLicense",
+    "type": "SIMRegistration",
     "firstName": "Jane",
     "lastName": "Doe",
     "dateOfBirth": "1990-01-01",
-    "placeOfBirth": "Berlin",
-    "issueDate": "2025-06-18",
-    "expiryDate": "2030-06-18",
-    "issuingAuthority": "EU Driving Authority",
-    "licenseNumber": "DL-123456789",
-    "categories": [
-      "B",
-      "AM"
-    ],
-    "restrictions": [
-      "Requires glasses"
-    ],
+    "nationality": "Germany",
+    "identificationNumber": "ID-12345678",
+    "idType": "National ID",
     "address": {
       "streetAddress": "123 Main Street",
       "locality": "Berlin",
       "postalCode": "10115",
       "country": "DE"
-    }
+    },
+    "contactEmail": "jane.doe@example.com",
+    "contactPhone": "+491234567890"
   },
   "proof": {
     "type": "Ed25519Signature2020",
-    "created": "2025-06-18T16:25:43.153Z",
+    "created": "2025-06-18T16:26:05.531Z",
     "verificationMethod": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae#keys-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "mock_signature_for_demo_purposes_only"
   },
   "credentialStatus": {
-    "id": "https://eudi-wallet.eu/status/0ead7867-b076-4b55-aff6-a286e7423993",
+    "id": "https://eudi-wallet.eu/status/7f5276b5-32fd-44c4-8c6e-ff5abbe1f59e",
     "type": "StatusList2021Entry",
-    "statusListIndex": "urn:uuid:2f158a0e-2643-4eef-8308-b56cfa2852aa",
-    "statusListCredential": "https://eudi-wallet.eu/status/0ead7867-b076-4b55-aff6-a286e7423993"
+    "statusListIndex": "urn:uuid:5a6792ec-1f28-4c81-a146-84a0a109d17c",
+    "statusListCredential": "https://eudi-wallet.eu/status/7f5276b5-32fd-44c4-8c6e-ff5abbe1f59e"
   }
 }
