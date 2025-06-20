@@ -5,7 +5,7 @@
     "https://w3id.org/security/suites/ed25519-2020/v1",
     "https://eudi-wallet.eu/contexts/sim-card/v1"
   ],
-  "id": "urn:uuid:6256f832-b997-4a7d-a996-544ef1ebb1f1",
+  "id": "urn:uuid:0cb0ac10-0b1b-46dc-93a2-96b55daa36a2",
   "type": [
     "VerifiableCredential",
     "SIMCardCredential"
@@ -23,15 +23,15 @@
   },
   "proof": {
     "type": "Ed25519Signature2020",
-    "created": "2025-06-20T13:22:49.882Z",
+    "created": "2025-06-20T13:32:12.979Z",
     "verificationMethod": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa#keys-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "mock_signature_for_demo_purposes_only"
   },
   "credentialStatus": {
-    "id": "https://eudi-wallet.eu/status/4c34715b-37f0-4523-998e-a5086e4190b7",
+    "id": "https://eudi-wallet.eu/status/61547c30-21ca-4ef9-93af-5d489d958b49",
     "type": "StatusList2021Entry",
-    "statusListIndex": "urn:uuid:1ed4991c-0803-4c8f-8628-a05c79f9ec30",
-    "statusListCredential": "https://eudi-wallet.eu/status/4c34715b-37f0-4523-998e-a5086e4190b7"
+    "statusListIndex": "urn:uuid:53ce44b4-1a79-47e9-a844-a8e5d8c57ca2",
+    "statusListCredential": "https://eudi-wallet.eu/status/61547c30-21ca-4ef9-93af-5d489d958b49"
   }
 }

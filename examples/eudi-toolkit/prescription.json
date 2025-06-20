@@ -5,7 +5,7 @@
     "https://w3id.org/security/suites/ed25519-2020/v1",
     "https://eudi-wallet.eu/contexts/healthcare/prescription/v1"
   ],
-  "id": "urn:uuid:6ba225f7-ce2c-46ea-b5e1-2216a70d0e04",
+  "id": "urn:uuid:de29dac3-2436-48a3-864a-d2f1f54ddcac",
   "type": [
     "VerifiableCredential",
     "PrescriptionCredential"
@@ -36,15 +36,15 @@
   },
   "proof": {
     "type": "Ed25519Signature2020",
-    "created": "2025-06-20T13:22:46.424Z",
+    "created": "2025-06-20T13:31:57.526Z",
     "verificationMethod": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa#keys-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "mock_signature_for_demo_purposes_only"
   },
   "credentialStatus": {
-    "id": "https://eudi-wallet.eu/status/c38e9133-25d8-4fc7-9312-7585e43b0bb7",
+    "id": "https://eudi-wallet.eu/status/dc3ab5d6-8551-41e4-b613-4be6d625e710",
     "type": "StatusList2021Entry",
-    "statusListIndex": "urn:uuid:313d8776-e42e-4b7e-86c5-d666eb01e471",
-    "statusListCredential": "https://eudi-wallet.eu/status/c38e9133-25d8-4fc7-9312-7585e43b0bb7"
+    "statusListIndex": "urn:uuid:ba991451-6d7c-4344-ae26-c4f9f83e8faa",
+    "statusListCredential": "https://eudi-wallet.eu/status/dc3ab5d6-8551-41e4-b613-4be6d625e710"
   }
 }

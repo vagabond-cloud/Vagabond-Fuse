@@ -5,13 +5,13 @@
     "https://w3id.org/security/suites/ed25519-2020/v1",
     "https://eudi-wallet.eu/contexts/hotel-booking/v1"
   ],
-  "id": "urn:uuid:4971328e-cc47-42d3-bde9-39bf177ccdba",
+  "id": "urn:uuid:61c81c75-ec94-4d20-81c6-8c2e3a367b4c",
   "type": [
     "VerifiableCredential",
     "HotelBookingCredential"
   ],
   "issuer": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa",
-  "issuanceDate": "2025-06-20T13:22:30.997Z",
+  "issuanceDate": "2025-06-20T13:29:44.225Z",
   "expirationDate": "2026-07-07T18:13:19.000Z",
   "credentialSubject": {
     "id": "did:xrpl:rJPWS4cN46EfNE2Gxb1NUrLn1x3EYTPDK3",
@@ -27,15 +27,15 @@
   },
   "proof": {
     "type": "Ed25519Signature2020",
-    "created": "2025-06-20T13:22:30.997Z",
+    "created": "2025-06-20T13:29:44.226Z",
     "verificationMethod": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa#keys-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "mock_signature_for_demo_purposes_only"
   },
   "credentialStatus": {
-    "id": "https://eudi-wallet.eu/status/9fb68bf6-23b4-4564-b475-7af75192cda4",
+    "id": "https://eudi-wallet.eu/status/1d0fed0a-20fa-4f13-87f1-326e2ae22d7a",
     "type": "StatusList2021Entry",
-    "statusListIndex": "urn:uuid:fb8605bc-6ef4-4f44-b856-24edd5c10d6a",
-    "statusListCredential": "https://eudi-wallet.eu/status/9fb68bf6-23b4-4564-b475-7af75192cda4"
+    "statusListIndex": "urn:uuid:c770de0e-5dc7-4d33-bf5e-1a166fc08a02",
+    "statusListCredential": "https://eudi-wallet.eu/status/1d0fed0a-20fa-4f13-87f1-326e2ae22d7a"
   }
 }

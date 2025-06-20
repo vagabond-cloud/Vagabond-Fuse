@@ -5,14 +5,14 @@
     "https://w3id.org/security/suites/ed25519-2020/v1",
     "https://eudi-wallet.eu/contexts/payment-authorization/v1"
   ],
-  "id": "urn:uuid:8fa5fdb7-4c02-4a92-b9f8-a865ac35e3ae",
+  "id": "urn:uuid:d583ea16-3c66-4741-88d2-201a1c936ebc",
   "type": [
     "VerifiableCredential",
     "PaymentAuthorizationCredential"
   ],
   "issuer": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa",
   "issuanceDate": "2025-06-18T18:13:32+03:00",
-  "expirationDate": "2025-06-20T13:37:41.743Z",
+  "expirationDate": "2025-06-20T13:46:15.438Z",
   "credentialSubject": {
     "id": "did:xrpl:rJPWS4cN46EfNE2Gxb1NUrLn1x3EYTPDK3",
     "type": "PaymentAuthorization",
@@ -23,19 +23,19 @@
     "timestamp": "2025-06-18T18:13:32+03:00",
     "orderId": "ORDER-12345",
     "description": "Purchase of electronics",
-    "authorizationId": "auth-4940c0b1-cb61-4a3e-8324-e7fb15ca6afc"
+    "authorizationId": "auth-1f08a121-3295-4e53-a76c-14f239091858"
   },
   "proof": {
     "type": "Ed25519Signature2020",
-    "created": "2025-06-20T13:22:41.744Z",
+    "created": "2025-06-20T13:31:15.439Z",
     "verificationMethod": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa#keys-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "mock_signature_for_demo_purposes_only"
   },
   "credentialStatus": {
-    "id": "https://eudi-wallet.eu/status/5ddebf1b-8238-40b4-bc10-f58799ef914f",
+    "id": "https://eudi-wallet.eu/status/58aebe31-7adb-4cbe-86e4-baa7137c13a1",
     "type": "StatusList2021Entry",
-    "statusListIndex": "urn:uuid:0e72489b-a732-4717-ada6-4e32fb49ba7b",
-    "statusListCredential": "https://eudi-wallet.eu/status/5ddebf1b-8238-40b4-bc10-f58799ef914f"
+    "statusListIndex": "urn:uuid:55641d05-8ec5-41bd-9d59-67f0481d3460",
+    "statusListCredential": "https://eudi-wallet.eu/status/58aebe31-7adb-4cbe-86e4-baa7137c13a1"
   }
 }

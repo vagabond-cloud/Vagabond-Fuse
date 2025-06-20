@@ -322,11 +322,116 @@ cat > examples/hotel-booking.json << EOL
 }
 EOL
 
-echo "Issuing travel identity credential..."
+echo "📄 10a. Creating traditional travel identity credential..."
 npm run start -- issue -t TravelIdentity -i "$ISSUER_DID" -s "$HOLDER_DID" -d travel-data.json -o travel-identity.json
 
-echo "Issuing hotel booking credential..."
+echo "📄 10b. Creating traditional hotel booking credential..."
 npm run start -- issue -t HotelBooking -i "$ISSUER_DID" -s "$HOLDER_DID" -d examples/hotel-booking.json -o hotel-booking.json
+
+echo ""
+echo "🔗 10c. Creating on-chain travel credentials..."
+if command -v ts-node >/dev/null 2>&1; then
+  cat > mint-travel-credentials.ts << 'EOF'
+#!/usr/bin/env ts-node
+import { Wallet } from 'xrpl';
+import { XRPLOnChainCredentials } from '../src/adapters/xrpl-onchain-credentials';
+import * as fs from 'fs';
+
+async function mintTravelCredentials() {
+  try {
+    const issuerAddress = process.argv[2] || 'rXXXXXXXXXXXXXXX';
+    const holderAddress = process.argv[3] || 'rYYYYYYYYYYYYYYY';
+    const issuerSeed = process.argv[4] || 'sEdXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+    
+    console.log('   🛂 Creating travel identity NFT...');
+    
+    const travelData = JSON.parse(fs.readFileSync('travel-data.json', 'utf8'));
+    const hotelData = JSON.parse(fs.readFileSync('examples/hotel-booking.json', 'utf8'));
+    
+    const credentialSystem = new XRPLOnChainCredentials('wss://s.altnet.rippletest.net:51233');
+    const issuerWallet = Wallet.fromSeed(issuerSeed);
+    credentialSystem.setWallet(issuerWallet);
+    
+    await credentialSystem.connect();
+    console.log('   ✅ Connected to XRPL testnet');
+    
+    const issuerInfo = await credentialSystem.getAccountInfo();
+    if (issuerInfo.exists && issuerInfo.balance >= 2) {
+      console.log(`   💰 Issuer funded with ${issuerInfo.balance} XRP`);
+      
+      // Create travel identity NFT
+      const travelResult = await credentialSystem.issueCredential(
+        {
+          type: 'TravelIdentity',
+          credentialSubject: {
+            id: `did:xrpl:${holderAddress}`,
+            ...travelData
+          },
+        },
+        holderAddress,
+        { taxon: 98766 }
+      );
+      
+      console.log('   ✅ Travel identity NFT created!');
+      console.log(`   🔗 Transaction: ${travelResult.transactionHash}`);
+      
+      // Create hotel booking NFT
+      const hotelResult = await credentialSystem.issueCredential(
+        {
+          type: 'HotelBooking',
+          credentialSubject: {
+            id: `did:xrpl:${holderAddress}`,
+            ...hotelData
+          },
+        },
+        holderAddress,
+        { taxon: 98767 }
+      );
+      
+      console.log('   ✅ Hotel booking NFT created!');
+      console.log(`   🔗 Transaction: ${hotelResult.transactionHash}`);
+      
+      const onChainTravel = {
+        type: 'OnChainTravelIdentity',
+        nftTokenId: travelResult.nftTokenId,
+        transactionHash: travelResult.transactionHash,
+        issuer: issuerWallet.address,
+        holder: holderAddress,
+        explorer: `https://testnet.xrpl.org/transactions/${travelResult.transactionHash}`
+      };
+      fs.writeFileSync('onchain-travel-identity.json', JSON.stringify(onChainTravel, null, 2));
+      
+      const onChainHotel = {
+        type: 'OnChainHotelBooking',
+        nftTokenId: hotelResult.nftTokenId,
+        transactionHash: hotelResult.transactionHash,
+        issuer: issuerWallet.address,
+        holder: holderAddress,
+        explorer: `https://testnet.xrpl.org/transactions/${hotelResult.transactionHash}`
+      };
+      fs.writeFileSync('onchain-hotel-booking.json', JSON.stringify(onChainHotel, null, 2));
+      
+    } else {
+      console.log('   ⚠️  Insufficient funding for on-chain operations');
+    }
+    
+    await credentialSystem.disconnect();
+    
+  } catch (error: any) {
+    console.log('   ❌ Travel on-chain credential creation failed:', error.message);
+  }
+}
+
+if (require.main === module) {
+  mintTravelCredentials().catch(console.error);
+}
+EOF
+
+  ts-node mint-travel-credentials.ts "$ISSUER_ADDRESS" "$HOLDER_ADDRESS" "$ISSUER_SEED"
+  rm -f mint-travel-credentials.ts
+else
+  echo "   ⚠️  TypeScript tools not available for on-chain operations"
+fi
 
 echo "Generating hotel check-in proof..."
 npm run start -- zkp generate -c travel-identity.json -r firstName,lastName,bookingReference -o hotel-checkin-proof.json
@@ -369,12 +474,118 @@ cat > signature-authority-data.json << EOL
 }
 EOL
 
-echo "Issuing signature authority credential..."
+echo "📄 11a. Creating traditional signature authority credential..."
 npm run start -- issue -t SignatureAuthority -i "$ISSUER_DID" -s "$HOLDER_DID" -d signature-authority-data.json -o signature-authority.json
 
-echo "Issuing contract credential..."
+echo "📄 11b. Creating traditional contract credential..."
 npm run start -- issue -t Contract -i "$ISSUER_DID" -s "$HOLDER_DID" -d contract-data.json -o contract.json
 
+echo ""
+echo "🔗 11c. Creating on-chain contract credentials..."
+if command -v ts-node >/dev/null 2>&1; then
+  cat > mint-contract-credentials.ts << 'EOF'
+#!/usr/bin/env ts-node
+import { Wallet } from 'xrpl';
+import { XRPLOnChainCredentials } from '../src/adapters/xrpl-onchain-credentials';
+import * as fs from 'fs';
+
+async function mintContractCredentials() {
+  try {
+    const issuerAddress = process.argv[2] || 'rXXXXXXXXXXXXXXX';
+    const holderAddress = process.argv[3] || 'rYYYYYYYYYYYYYYY';
+    const issuerSeed = process.argv[4] || 'sEdXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+    
+    console.log('   📝 Creating signature authority NFT...');
+    
+    const signatureData = JSON.parse(fs.readFileSync('signature-authority-data.json', 'utf8'));
+    const contractData = JSON.parse(fs.readFileSync('contract-data.json', 'utf8'));
+    
+    const credentialSystem = new XRPLOnChainCredentials('wss://s.altnet.rippletest.net:51233');
+    const issuerWallet = Wallet.fromSeed(issuerSeed);
+    credentialSystem.setWallet(issuerWallet);
+    
+    await credentialSystem.connect();
+    console.log('   ✅ Connected to XRPL testnet');
+    
+    const issuerInfo = await credentialSystem.getAccountInfo();
+    if (issuerInfo.exists && issuerInfo.balance >= 2) {
+      console.log(`   💰 Issuer funded with ${issuerInfo.balance} XRP`);
+      
+      // Create signature authority NFT
+      const sigResult = await credentialSystem.issueCredential(
+        {
+          type: 'SignatureAuthority',
+          credentialSubject: {
+            id: `did:xrpl:${holderAddress}`,
+            ...signatureData
+          },
+        },
+        holderAddress,
+        { taxon: 98768 }
+      );
+      
+      console.log('   ✅ Signature authority NFT created!');
+      console.log(`   🔗 Transaction: ${sigResult.transactionHash}`);
+      
+      // Create contract NFT
+      const contractResult = await credentialSystem.issueCredential(
+        {
+          type: 'Contract',
+          credentialSubject: {
+            id: `did:xrpl:${holderAddress}`,
+            ...contractData
+          },
+        },
+        holderAddress,
+        { taxon: 98769 }
+      );
+      
+      console.log('   ✅ Contract NFT created!');
+      console.log(`   🔗 Transaction: ${contractResult.transactionHash}`);
+      
+      const onChainSig = {
+        type: 'OnChainSignatureAuthority',
+        nftTokenId: sigResult.nftTokenId,
+        transactionHash: sigResult.transactionHash,
+        issuer: issuerWallet.address,
+        holder: holderAddress,
+        explorer: `https://testnet.xrpl.org/transactions/${sigResult.transactionHash}`
+      };
+      fs.writeFileSync('onchain-signature-authority.json', JSON.stringify(onChainSig, null, 2));
+      
+      const onChainContract = {
+        type: 'OnChainContract',
+        nftTokenId: contractResult.nftTokenId,
+        transactionHash: contractResult.transactionHash,
+        issuer: issuerWallet.address,
+        holder: holderAddress,
+        explorer: `https://testnet.xrpl.org/transactions/${contractResult.transactionHash}`
+      };
+      fs.writeFileSync('onchain-contract.json', JSON.stringify(onChainContract, null, 2));
+      
+    } else {
+      console.log('   ⚠️  Insufficient funding for on-chain operations');
+    }
+    
+    await credentialSystem.disconnect();
+    
+  } catch (error: any) {
+    console.log('   ❌ Contract on-chain credential creation failed:', error.message);
+  }
+}
+
+if (require.main === module) {
+  mintContractCredentials().catch(console.error);
+}
+EOF
+
+  ts-node mint-contract-credentials.ts "$ISSUER_ADDRESS" "$HOLDER_ADDRESS" "$ISSUER_SEED"
+  rm -f mint-contract-credentials.ts
+else
+  echo "   ⚠️  TypeScript tools not available for on-chain operations"
+fi
+
+echo ""
 echo "Verifying signature authority..."
 npm run start -- verify -c signature-authority.json
 
@@ -412,11 +623,116 @@ cat > org-role-data.json << EOL
 }
 EOL
 
-echo "Issuing organizational identity credential..."
+echo "📄 12a. Creating traditional organizational identity credential..."
 npm run start -- issue -t OrganizationalIdentity -i "$ISSUER_DID" -s "$HOLDER_DID" -d org-data.json -o org-identity.json
 
-echo "Issuing organizational role credential..."
+echo "📄 12b. Creating traditional organizational role credential..."
 npm run start -- issue -t OrganizationalRole -i "$ISSUER_DID" -s "$HOLDER_DID" -d org-role-data.json -o org-role.json
+
+echo ""
+echo "🔗 12c. Creating on-chain organizational credentials..."
+if command -v ts-node >/dev/null 2>&1; then
+  cat > mint-org-credentials.ts << 'EOF'
+#!/usr/bin/env ts-node
+import { Wallet } from 'xrpl';
+import { XRPLOnChainCredentials } from '../src/adapters/xrpl-onchain-credentials';
+import * as fs from 'fs';
+
+async function mintOrgCredentials() {
+  try {
+    const issuerAddress = process.argv[2] || 'rXXXXXXXXXXXXXXX';
+    const holderAddress = process.argv[3] || 'rYYYYYYYYYYYYYYY';
+    const issuerSeed = process.argv[4] || 'sEdXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+    
+    console.log('   🏢 Creating organizational credentials NFTs...');
+    
+    const orgData = JSON.parse(fs.readFileSync('org-data.json', 'utf8'));
+    const orgRoleData = JSON.parse(fs.readFileSync('org-role-data.json', 'utf8'));
+    
+    const credentialSystem = new XRPLOnChainCredentials('wss://s.altnet.rippletest.net:51233');
+    const issuerWallet = Wallet.fromSeed(issuerSeed);
+    credentialSystem.setWallet(issuerWallet);
+    
+    await credentialSystem.connect();
+    console.log('   ✅ Connected to XRPL testnet');
+    
+    const issuerInfo = await credentialSystem.getAccountInfo();
+    if (issuerInfo.exists && issuerInfo.balance >= 2) {
+      console.log(`   💰 Issuer funded with ${issuerInfo.balance} XRP`);
+      
+      // Create organizational identity NFT
+      const orgResult = await credentialSystem.issueCredential(
+        {
+          type: 'OrganizationalIdentity',
+          credentialSubject: {
+            id: `did:xrpl:${holderAddress}`,
+            ...orgData
+          },
+        },
+        holderAddress,
+        { taxon: 98770 }
+      );
+      
+      console.log('   ✅ Organizational identity NFT created!');
+      console.log(`   🔗 Transaction: ${orgResult.transactionHash}`);
+      
+      // Create organizational role NFT
+      const roleResult = await credentialSystem.issueCredential(
+        {
+          type: 'OrganizationalRole',
+          credentialSubject: {
+            id: `did:xrpl:${holderAddress}`,
+            ...orgRoleData
+          },
+        },
+        holderAddress,
+        { taxon: 98771 }
+      );
+      
+      console.log('   ✅ Organizational role NFT created!');
+      console.log(`   🔗 Transaction: ${roleResult.transactionHash}`);
+      
+      const onChainOrg = {
+        type: 'OnChainOrganizationalIdentity',
+        nftTokenId: orgResult.nftTokenId,
+        transactionHash: orgResult.transactionHash,
+        issuer: issuerWallet.address,
+        holder: holderAddress,
+        explorer: `https://testnet.xrpl.org/transactions/${orgResult.transactionHash}`
+      };
+      fs.writeFileSync('onchain-org-identity.json', JSON.stringify(onChainOrg, null, 2));
+      
+      const onChainRole = {
+        type: 'OnChainOrganizationalRole',
+        nftTokenId: roleResult.nftTokenId,
+        transactionHash: roleResult.transactionHash,
+        issuer: issuerWallet.address,
+        holder: holderAddress,
+        explorer: `https://testnet.xrpl.org/transactions/${roleResult.transactionHash}`
+      };
+      fs.writeFileSync('onchain-org-role.json', JSON.stringify(onChainRole, null, 2));
+      
+    } else {
+      console.log('   ⚠️  Insufficient funding for on-chain operations');
+    }
+    
+    await credentialSystem.disconnect();
+    
+  } catch (error: any) {
+    console.log('   ❌ Organizational on-chain credential creation failed:', error.message);
+  }
+}
+
+if (require.main === module) {
+  mintOrgCredentials().catch(console.error);
+}
+EOF
+
+  ts-node mint-org-credentials.ts "$ISSUER_ADDRESS" "$HOLDER_ADDRESS" "$ISSUER_SEED"
+  rm -f mint-org-credentials.ts
+else
+  echo "   ⚠️  TypeScript tools not available for on-chain operations"
+fi
 
 echo "Generating organizational role proof..."
 npm run start -- zkp generate -c org-role.json -r personName,role,organizationId -o org-role-proof.json
@@ -461,11 +777,116 @@ cat > payment-auth-data.json << EOL
 }
 EOL
 
-echo "Issuing payment method credential..."
+echo "📄 13a. Creating traditional payment method credential..."
 npm run start -- issue -t PaymentMethod -i "$ISSUER_DID" -s "$HOLDER_DID" -d payment-data.json -o payment-method.json
 
-echo "Issuing payment authorization credential..."
+echo "📄 13b. Creating traditional payment authorization credential..."
 npm run start -- issue -t PaymentAuthorization -i "$ISSUER_DID" -s "$HOLDER_DID" -d payment-auth-data.json -o payment-auth.json
+
+echo ""
+echo "🔗 13c. Creating on-chain payment credentials..."
+if command -v ts-node >/dev/null 2>&1; then
+  cat > mint-payment-credentials.ts << 'EOF'
+#!/usr/bin/env ts-node
+import { Wallet } from 'xrpl';
+import { XRPLOnChainCredentials } from '../src/adapters/xrpl-onchain-credentials';
+import * as fs from 'fs';
+
+async function mintPaymentCredentials() {
+  try {
+    const issuerAddress = process.argv[2] || 'rXXXXXXXXXXXXXXX';
+    const holderAddress = process.argv[3] || 'rYYYYYYYYYYYYYYY';
+    const issuerSeed = process.argv[4] || 'sEdXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+    
+    console.log('   💳 Creating payment credentials NFTs...');
+    
+    const paymentData = JSON.parse(fs.readFileSync('payment-data.json', 'utf8'));
+    const paymentAuthData = JSON.parse(fs.readFileSync('payment-auth-data.json', 'utf8'));
+    
+    const credentialSystem = new XRPLOnChainCredentials('wss://s.altnet.rippletest.net:51233');
+    const issuerWallet = Wallet.fromSeed(issuerSeed);
+    credentialSystem.setWallet(issuerWallet);
+    
+    await credentialSystem.connect();
+    console.log('   ✅ Connected to XRPL testnet');
+    
+    const issuerInfo = await credentialSystem.getAccountInfo();
+    if (issuerInfo.exists && issuerInfo.balance >= 2) {
+      console.log(`   💰 Issuer funded with ${issuerInfo.balance} XRP`);
+      
+      // Create payment method NFT
+      const paymentResult = await credentialSystem.issueCredential(
+        {
+          type: 'PaymentMethod',
+          credentialSubject: {
+            id: `did:xrpl:${holderAddress}`,
+            ...paymentData
+          },
+        },
+        holderAddress,
+        { taxon: 98772 }
+      );
+      
+      console.log('   ✅ Payment method NFT created!');
+      console.log(`   🔗 Transaction: ${paymentResult.transactionHash}`);
+      
+      // Create payment authorization NFT
+      const authResult = await credentialSystem.issueCredential(
+        {
+          type: 'PaymentAuthorization',
+          credentialSubject: {
+            id: `did:xrpl:${holderAddress}`,
+            ...paymentAuthData
+          },
+        },
+        holderAddress,
+        { taxon: 98773 }
+      );
+      
+      console.log('   ✅ Payment authorization NFT created!');
+      console.log(`   🔗 Transaction: ${authResult.transactionHash}`);
+      
+      const onChainPayment = {
+        type: 'OnChainPaymentMethod',
+        nftTokenId: paymentResult.nftTokenId,
+        transactionHash: paymentResult.transactionHash,
+        issuer: issuerWallet.address,
+        holder: holderAddress,
+        explorer: `https://testnet.xrpl.org/transactions/${paymentResult.transactionHash}`
+      };
+      fs.writeFileSync('onchain-payment-method.json', JSON.stringify(onChainPayment, null, 2));
+      
+      const onChainAuth = {
+        type: 'OnChainPaymentAuthorization',
+        nftTokenId: authResult.nftTokenId,
+        transactionHash: authResult.transactionHash,
+        issuer: issuerWallet.address,
+        holder: holderAddress,
+        explorer: `https://testnet.xrpl.org/transactions/${authResult.transactionHash}`
+      };
+      fs.writeFileSync('onchain-payment-auth.json', JSON.stringify(onChainAuth, null, 2));
+      
+    } else {
+      console.log('   ⚠️  Insufficient funding for on-chain operations');
+    }
+    
+    await credentialSystem.disconnect();
+    
+  } catch (error: any) {
+    console.log('   ❌ Payment on-chain credential creation failed:', error.message);
+  }
+}
+
+if (require.main === module) {
+  mintPaymentCredentials().catch(console.error);
+}
+EOF
+
+  ts-node mint-payment-credentials.ts "$ISSUER_ADDRESS" "$HOLDER_ADDRESS" "$ISSUER_SEED"
+  rm -f mint-payment-credentials.ts
+else
+  echo "   ⚠️  TypeScript tools not available for on-chain operations"
+fi
 
 echo "Generating payment proof..."
 npm run start -- zkp generate -c payment-method.json -r type,identifier,merchantName,amount,currency -o payment-proof.json
@@ -503,8 +924,86 @@ cat > diploma-data.json << EOL
 }
 EOL
 
-echo "Issuing diploma credential..."
+echo "📄 14a. Creating traditional diploma credential..."
 npm run start -- issue -t Diploma -i "$ISSUER_DID" -s "$HOLDER_DID" -d diploma-data.json -o diploma.json
+
+echo ""
+echo "🔗 14b. Creating on-chain education credential..."
+if command -v ts-node >/dev/null 2>&1; then
+  cat > mint-education-credential.ts << 'EOF'
+#!/usr/bin/env ts-node
+import { Wallet } from 'xrpl';
+import { XRPLOnChainCredentials } from '../src/adapters/xrpl-onchain-credentials';
+import * as fs from 'fs';
+
+async function mintEducationCredential() {
+  try {
+    const issuerAddress = process.argv[2] || 'rXXXXXXXXXXXXXXX';
+    const holderAddress = process.argv[3] || 'rYYYYYYYYYYYYYYY';
+    const issuerSeed = process.argv[4] || 'sEdXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+    
+    console.log('   🎓 Creating diploma NFT...');
+    
+    const diplomaData = JSON.parse(fs.readFileSync('diploma-data.json', 'utf8'));
+    
+    const credentialSystem = new XRPLOnChainCredentials('wss://s.altnet.rippletest.net:51233');
+    const issuerWallet = Wallet.fromSeed(issuerSeed);
+    credentialSystem.setWallet(issuerWallet);
+    
+    await credentialSystem.connect();
+    console.log('   ✅ Connected to XRPL testnet');
+    
+    const issuerInfo = await credentialSystem.getAccountInfo();
+    if (issuerInfo.exists && issuerInfo.balance >= 2) {
+      console.log(`   💰 Issuer funded with ${issuerInfo.balance} XRP`);
+      
+      // Create diploma NFT
+      const diplomaResult = await credentialSystem.issueCredential(
+        {
+          type: 'Diploma',
+          credentialSubject: {
+            id: `did:xrpl:${holderAddress}`,
+            ...diplomaData
+          },
+        },
+        holderAddress,
+        { taxon: 98774 }
+      );
+      
+      console.log('   ✅ Diploma NFT created!');
+      console.log(`   🔗 Transaction: ${diplomaResult.transactionHash}`);
+      
+      const onChainDiploma = {
+        type: 'OnChainDiploma',
+        nftTokenId: diplomaResult.nftTokenId,
+        transactionHash: diplomaResult.transactionHash,
+        issuer: issuerWallet.address,
+        holder: holderAddress,
+        explorer: `https://testnet.xrpl.org/transactions/${diplomaResult.transactionHash}`
+      };
+      fs.writeFileSync('onchain-diploma.json', JSON.stringify(onChainDiploma, null, 2));
+      
+    } else {
+      console.log('   ⚠️  Insufficient funding for on-chain operations');
+    }
+    
+    await credentialSystem.disconnect();
+    
+  } catch (error: any) {
+    console.log('   ❌ Education on-chain credential creation failed:', error.message);
+  }
+}
+
+if (require.main === module) {
+  mintEducationCredential().catch(console.error);
+}
+EOF
+
+  ts-node mint-education-credential.ts "$ISSUER_ADDRESS" "$HOLDER_ADDRESS" "$ISSUER_SEED"
+  rm -f mint-education-credential.ts
+else
+  echo "   ⚠️  TypeScript tools not available for on-chain operations"
+fi
 
 echo "Generating education proof..."
 npm run start -- zkp generate -c diploma.json -r studentName,institution,degree,field,awardDate -o education-proof.json
@@ -548,8 +1047,86 @@ cat > prescription-data.json << EOL
 }
 EOL
 
-echo "Issuing prescription credential..."
+echo "📄 15a. Creating traditional prescription credential..."
 npm run start -- issue -t Prescription -i "$ISSUER_DID" -s "$HOLDER_DID" -d prescription-data.json -o prescription.json
+
+echo ""
+echo "🔗 15b. Creating on-chain healthcare credential..."
+if command -v ts-node >/dev/null 2>&1; then
+  cat > mint-healthcare-credential.ts << 'EOF'
+#!/usr/bin/env ts-node
+import { Wallet } from 'xrpl';
+import { XRPLOnChainCredentials } from '../src/adapters/xrpl-onchain-credentials';
+import * as fs from 'fs';
+
+async function mintHealthcareCredential() {
+  try {
+    const issuerAddress = process.argv[2] || 'rXXXXXXXXXXXXXXX';
+    const holderAddress = process.argv[3] || 'rYYYYYYYYYYYYYYY';
+    const issuerSeed = process.argv[4] || 'sEdXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+    
+    console.log('   💊 Creating prescription NFT...');
+    
+    const prescriptionData = JSON.parse(fs.readFileSync('prescription-data.json', 'utf8'));
+    
+    const credentialSystem = new XRPLOnChainCredentials('wss://s.altnet.rippletest.net:51233');
+    const issuerWallet = Wallet.fromSeed(issuerSeed);
+    credentialSystem.setWallet(issuerWallet);
+    
+    await credentialSystem.connect();
+    console.log('   ✅ Connected to XRPL testnet');
+    
+    const issuerInfo = await credentialSystem.getAccountInfo();
+    if (issuerInfo.exists && issuerInfo.balance >= 2) {
+      console.log(`   💰 Issuer funded with ${issuerInfo.balance} XRP`);
+      
+      // Create prescription NFT
+      const prescriptionResult = await credentialSystem.issueCredential(
+        {
+          type: 'Prescription',
+          credentialSubject: {
+            id: `did:xrpl:${holderAddress}`,
+            ...prescriptionData
+          },
+        },
+        holderAddress,
+        { taxon: 98775 }
+      );
+      
+      console.log('   ✅ Prescription NFT created!');
+      console.log(`   🔗 Transaction: ${prescriptionResult.transactionHash}`);
+      
+      const onChainPrescription = {
+        type: 'OnChainPrescription',
+        nftTokenId: prescriptionResult.nftTokenId,
+        transactionHash: prescriptionResult.transactionHash,
+        issuer: issuerWallet.address,
+        holder: holderAddress,
+        explorer: `https://testnet.xrpl.org/transactions/${prescriptionResult.transactionHash}`
+      };
+      fs.writeFileSync('onchain-prescription.json', JSON.stringify(onChainPrescription, null, 2));
+      
+    } else {
+      console.log('   ⚠️  Insufficient funding for on-chain operations');
+    }
+    
+    await credentialSystem.disconnect();
+    
+  } catch (error: any) {
+    console.log('   ❌ Healthcare on-chain credential creation failed:', error.message);
+  }
+}
+
+if (require.main === module) {
+  mintHealthcareCredential().catch(console.error);
+}
+EOF
+
+  ts-node mint-healthcare-credential.ts "$ISSUER_ADDRESS" "$HOLDER_ADDRESS" "$ISSUER_SEED"
+  rm -f mint-healthcare-credential.ts
+else
+  echo "   ⚠️  TypeScript tools not available for on-chain operations"
+fi
 
 echo "Generating prescription proof..."
 npm run start -- zkp generate -c prescription.json -r patientName,prescriptionId,medications -o prescription-proof.json
@@ -600,11 +1177,116 @@ cat > sim-card-data.json << EOL
 }
 EOL
 
-echo "Issuing SIM registration credential..."
+echo "📄 16a. Creating traditional SIM registration credential..."
 npm run start -- issue -t SIMRegistration -i "$ISSUER_DID" -s "$HOLDER_DID" -d sim-reg-data.json -o sim-registration.json
 
-echo "Issuing SIM card credential..."
+echo "📄 16b. Creating traditional SIM card credential..."
 npm run start -- issue -t SIMCard -i "$ISSUER_DID" -s "$HOLDER_DID" -d sim-card-data.json -o sim-card.json
+
+echo ""
+echo "🔗 16c. Creating on-chain SIM credentials..."
+if command -v ts-node >/dev/null 2>&1; then
+  cat > mint-sim-credentials.ts << 'EOF'
+#!/usr/bin/env ts-node
+import { Wallet } from 'xrpl';
+import { XRPLOnChainCredentials } from '../src/adapters/xrpl-onchain-credentials';
+import * as fs from 'fs';
+
+async function mintSimCredentials() {
+  try {
+    const issuerAddress = process.argv[2] || 'rXXXXXXXXXXXXXXX';
+    const holderAddress = process.argv[3] || 'rYYYYYYYYYYYYYYY';
+    const issuerSeed = process.argv[4] || 'sEdXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+    
+    console.log('   📱 Creating SIM credentials NFTs...');
+    
+    const simRegData = JSON.parse(fs.readFileSync('sim-reg-data.json', 'utf8'));
+    const simCardData = JSON.parse(fs.readFileSync('sim-card-data.json', 'utf8'));
+    
+    const credentialSystem = new XRPLOnChainCredentials('wss://s.altnet.rippletest.net:51233');
+    const issuerWallet = Wallet.fromSeed(issuerSeed);
+    credentialSystem.setWallet(issuerWallet);
+    
+    await credentialSystem.connect();
+    console.log('   ✅ Connected to XRPL testnet');
+    
+    const issuerInfo = await credentialSystem.getAccountInfo();
+    if (issuerInfo.exists && issuerInfo.balance >= 2) {
+      console.log(`   💰 Issuer funded with ${issuerInfo.balance} XRP`);
+      
+      // Create SIM registration NFT
+      const simRegResult = await credentialSystem.issueCredential(
+        {
+          type: 'SIMRegistration',
+          credentialSubject: {
+            id: `did:xrpl:${holderAddress}`,
+            ...simRegData
+          },
+        },
+        holderAddress,
+        { taxon: 98776 }
+      );
+      
+      console.log('   ✅ SIM registration NFT created!');
+      console.log(`   🔗 Transaction: ${simRegResult.transactionHash}`);
+      
+      // Create SIM card NFT
+      const simCardResult = await credentialSystem.issueCredential(
+        {
+          type: 'SIMCard',
+          credentialSubject: {
+            id: `did:xrpl:${holderAddress}`,
+            ...simCardData
+          },
+        },
+        holderAddress,
+        { taxon: 98777 }
+      );
+      
+      console.log('   ✅ SIM card NFT created!');
+      console.log(`   🔗 Transaction: ${simCardResult.transactionHash}`);
+      
+      const onChainSimReg = {
+        type: 'OnChainSIMRegistration',
+        nftTokenId: simRegResult.nftTokenId,
+        transactionHash: simRegResult.transactionHash,
+        issuer: issuerWallet.address,
+        holder: holderAddress,
+        explorer: `https://testnet.xrpl.org/transactions/${simRegResult.transactionHash}`
+      };
+      fs.writeFileSync('onchain-sim-registration.json', JSON.stringify(onChainSimReg, null, 2));
+      
+      const onChainSimCard = {
+        type: 'OnChainSIMCard',
+        nftTokenId: simCardResult.nftTokenId,
+        transactionHash: simCardResult.transactionHash,
+        issuer: issuerWallet.address,
+        holder: holderAddress,
+        explorer: `https://testnet.xrpl.org/transactions/${simCardResult.transactionHash}`
+      };
+      fs.writeFileSync('onchain-sim-card.json', JSON.stringify(onChainSimCard, null, 2));
+      
+    } else {
+      console.log('   ⚠️  Insufficient funding for on-chain operations');
+    }
+    
+    await credentialSystem.disconnect();
+    
+  } catch (error: any) {
+    console.log('   ❌ SIM on-chain credential creation failed:', error.message);
+  }
+}
+
+if (require.main === module) {
+  mintSimCredentials().catch(console.error);
+}
+EOF
+
+  ts-node mint-sim-credentials.ts "$ISSUER_ADDRESS" "$HOLDER_ADDRESS" "$ISSUER_SEED"
+  rm -f mint-sim-credentials.ts
+else
+  echo "   ⚠️  TypeScript tools not available for on-chain operations"
+fi
 
 echo "Generating SIM registration proof..."
 npm run start -- zkp generate -c sim-registration.json -r firstName,lastName,identificationNumber,idType -o sim-reg-proof.json
@@ -679,14 +1361,20 @@ fi
 echo "5. ZK Proof: proof.json"
 echo "6. Policy: age-policy.rego (successfully evaluated)"
 echo ""
-echo "📄 USE CASES DEMONSTRATED:"
-echo "7. Travel - Hotel booking and identity verification"
-echo "8. Signing Contracts - Contract signing with authority"
-echo "9. Organizational Identity - Organization and role credentials"
-echo "10. Payments - Payment methods and authorization"
-echo "11. Education - Diploma and selective disclosure"
-echo "12. Healthcare - Prescription issuance and verification"
-echo "13. SIM Registration - Identity verification for SIM cards"
+echo "📄 ALL USE CASES WITH DUAL CREDENTIALS:"
+echo "7. 🎫 Driving License - credential.json + onchain-credential.json"
+echo "8. 🛂 Travel Identity - travel-identity.json + onchain-travel-identity.json"
+echo "9. 🏨 Hotel Booking - hotel-booking.json + onchain-hotel-booking.json"
+echo "10. 📝 Signature Authority - signature-authority.json + onchain-signature-authority.json"
+echo "11. 📄 Contract - contract.json + onchain-contract.json"
+echo "12. 🏢 Organizational Identity - org-identity.json + onchain-org-identity.json"
+echo "13. 👔 Organizational Role - org-role.json + onchain-org-role.json"
+echo "14. 💳 Payment Method - payment-method.json + onchain-payment-method.json"
+echo "15. 🔐 Payment Authorization - payment-auth.json + onchain-payment-auth.json"
+echo "16. 🎓 Diploma - diploma.json + onchain-diploma.json"
+echo "17. 💊 Prescription - prescription.json + onchain-prescription.json"
+echo "18. 📱 SIM Registration - sim-registration.json + onchain-sim-registration.json"
+echo "19. 📲 SIM Card - sim-card.json + onchain-sim-card.json"
 echo ""
 echo "🔄 HYBRID CREDENTIAL SYSTEM ACHIEVED:"
 echo "   ✅ UNIFIED issuance process (Step 3 creates BOTH formats)"

@@ -5,14 +5,14 @@
     "https://w3id.org/security/suites/ed25519-2020/v1",
     "https://eudi-wallet.eu/contexts/organizational-role/v1"
   ],
-  "id": "urn:uuid:37688073-89c4-4c91-90aa-73615b5a63d8",
+  "id": "urn:uuid:c555f487-4440-4cfd-b41b-d90683cb1590",
   "type": [
     "VerifiableCredential",
     "OrganizationalRoleCredential"
   ],
   "issuer": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa",
-  "issuanceDate": "2025-06-20T13:22:38.493Z",
-  "expirationDate": "2026-06-20T13:22:38.494Z",
+  "issuanceDate": "2025-06-20T13:30:41.521Z",
+  "expirationDate": "2026-06-20T13:30:41.521Z",
   "credentialSubject": {
     "id": "did:xrpl:rJPWS4cN46EfNE2Gxb1NUrLn1x3EYTPDK3",
     "type": "OrganizationalRole",
@@ -29,15 +29,15 @@
   },
   "proof": {
     "type": "Ed25519Signature2020",
-    "created": "2025-06-20T13:22:38.494Z",
+    "created": "2025-06-20T13:30:41.521Z",
     "verificationMethod": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa#keys-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "mock_signature_for_demo_purposes_only"
   },
   "credentialStatus": {
-    "id": "https://eudi-wallet.eu/status/e09414ee-13dc-48b9-a265-8fad8f10b75a",
+    "id": "https://eudi-wallet.eu/status/01aa2fa0-d2a0-4b05-9e34-38a42d0b4581",
     "type": "StatusList2021Entry",
-    "statusListIndex": "urn:uuid:481afa5e-c534-4bed-83ed-d618a6e8a3c4",
-    "statusListCredential": "https://eudi-wallet.eu/status/e09414ee-13dc-48b9-a265-8fad8f10b75a"
+    "statusListIndex": "urn:uuid:85660173-3be0-48ca-a686-41f40947146b",
+    "statusListCredential": "https://eudi-wallet.eu/status/01aa2fa0-d2a0-4b05-9e34-38a42d0b4581"
   }
 }
