@@ -1,8 +1,8 @@
 {
   "bookingReference": "BK12345",
   "hotelName": "Grand Hotel Berlin",
-  "checkInDate": "2026-07-03T19:25:47Z",
-  "checkOutDate": "2026-07-07T19:25:47Z",
+  "checkInDate": "2026-07-05T16:22:28Z",
+  "checkOutDate": "2026-07-09T16:22:28Z",
   "roomType": "Deluxe Double",
   "guestCount": 2,
   "totalAmount": "800.00",

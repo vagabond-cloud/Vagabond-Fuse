@@ -5,16 +5,16 @@
     "https://w3id.org/security/suites/ed25519-2020/v1",
     "https://eudi-wallet.eu/contexts/sim-registration/v1"
   ],
-  "id": "urn:uuid:a9f586ce-4389-45e1-9843-16f547566f2c",
+  "id": "urn:uuid:58d8e097-6a46-41ee-b5b7-098a33ca5fb6",
   "type": [
     "VerifiableCredential",
     "SIMRegistrationCredential"
   ],
-  "issuer": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae",
-  "issuanceDate": "2025-06-18T16:26:05.531Z",
-  "expirationDate": "2030-06-17T16:26:05.531Z",
+  "issuer": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa",
+  "issuanceDate": "2025-06-20T13:22:48.826Z",
+  "expirationDate": "2030-06-19T13:22:48.827Z",
   "credentialSubject": {
-    "id": "did:xrpl:rNAZAvNiqhmS3kCAuBXFUnsu6r5nYLacx3",
+    "id": "did:xrpl:rJPWS4cN46EfNE2Gxb1NUrLn1x3EYTPDK3",
     "type": "SIMRegistration",
     "firstName": "Jane",
     "lastName": "Doe",
@@ -33,15 +33,15 @@
   },
   "proof": {
     "type": "Ed25519Signature2020",
-    "created": "2025-06-18T16:26:05.531Z",
-    "verificationMethod": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae#keys-1",
+    "created": "2025-06-20T13:22:48.827Z",
+    "verificationMethod": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa#keys-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "mock_signature_for_demo_purposes_only"
   },
   "credentialStatus": {
-    "id": "https://eudi-wallet.eu/status/7f5276b5-32fd-44c4-8c6e-ff5abbe1f59e",
+    "id": "https://eudi-wallet.eu/status/26c7a287-ae45-4472-960f-486e6422d1be",
     "type": "StatusList2021Entry",
-    "statusListIndex": "urn:uuid:5a6792ec-1f28-4c81-a146-84a0a109d17c",
-    "statusListCredential": "https://eudi-wallet.eu/status/7f5276b5-32fd-44c4-8c6e-ff5abbe1f59e"
+    "statusListIndex": "urn:uuid:00e9fbd8-e229-498e-8f9b-d86707943d2c",
+    "statusListCredential": "https://eudi-wallet.eu/status/26c7a287-ae45-4472-960f-486e6422d1be"
   }
 }

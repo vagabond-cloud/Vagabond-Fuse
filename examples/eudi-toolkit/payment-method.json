@@ -5,16 +5,16 @@
     "https://w3id.org/security/suites/ed25519-2020/v1",
     "https://eudi-wallet.eu/contexts/payment-method/v1"
   ],
-  "id": "urn:uuid:1cdb5d45-4e48-4598-a105-616f04295b74",
+  "id": "urn:uuid:be14387e-7f56-4227-b8fa-1f85389aebe9",
   "type": [
     "VerifiableCredential",
     "PaymentMethodCredential"
   ],
-  "issuer": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae",
-  "issuanceDate": "2025-06-18T16:25:58.400Z",
+  "issuer": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa",
+  "issuanceDate": "2025-06-20T13:22:40.637Z",
   "expirationDate": "2028-12-31",
   "credentialSubject": {
-    "id": "did:xrpl:rNAZAvNiqhmS3kCAuBXFUnsu6r5nYLacx3",
+    "id": "did:xrpl:rJPWS4cN46EfNE2Gxb1NUrLn1x3EYTPDK3",
     "type": "PaymentMethod",
     "paymentType": "card",
     "name": "Jane Doe",
@@ -25,15 +25,15 @@
   },
   "proof": {
     "type": "Ed25519Signature2020",
-    "created": "2025-06-18T16:25:58.401Z",
-    "verificationMethod": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae#keys-1",
+    "created": "2025-06-20T13:22:40.637Z",
+    "verificationMethod": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa#keys-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "mock_signature_for_demo_purposes_only"
   },
   "credentialStatus": {
-    "id": "https://eudi-wallet.eu/status/c72dafd8-93eb-4d1f-ab81-f0a9bd3c810d",
+    "id": "https://eudi-wallet.eu/status/50d3fdf6-3fb2-453b-a04a-66f7d44093a3",
     "type": "StatusList2021Entry",
-    "statusListIndex": "urn:uuid:f7929d0b-cd03-4c5a-bf2f-28f1ade80e18",
-    "statusListCredential": "https://eudi-wallet.eu/status/c72dafd8-93eb-4d1f-ab81-f0a9bd3c810d"
+    "statusListIndex": "urn:uuid:c63160d4-ac42-469d-be6a-e5f31e2d16db",
+    "statusListCredential": "https://eudi-wallet.eu/status/50d3fdf6-3fb2-453b-a04a-66f7d44093a3"
   }
 }

@@ -1,0 +1,12 @@
+{
+  "issuer": {
+    "did": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa",
+    "address": "rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa",
+    "seed": "sEdSSdppB4ZWAHGCwqTsgKMHZETATpQ"
+  },
+  "holder": {
+    "did": "did:xrpl:rJPWS4cN46EfNE2Gxb1NUrLn1x3EYTPDK3", 
+    "address": "rJPWS4cN46EfNE2Gxb1NUrLn1x3EYTPDK3",
+    "seed": "sEd77oCQhAHgFuXJEEv6jraqs1mpkgJ"
+  }
+}

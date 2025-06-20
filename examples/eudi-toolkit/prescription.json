@@ -5,16 +5,16 @@
     "https://w3id.org/security/suites/ed25519-2020/v1",
     "https://eudi-wallet.eu/contexts/healthcare/prescription/v1"
   ],
-  "id": "urn:uuid:e7670f77-26cc-4e4d-97d5-598c04f398b4",
+  "id": "urn:uuid:6ba225f7-ce2c-46ea-b5e1-2216a70d0e04",
   "type": [
     "VerifiableCredential",
     "PrescriptionCredential"
   ],
-  "issuer": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae",
+  "issuer": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa",
   "issuanceDate": "2025-06-18",
   "expirationDate": "2025-07-18",
   "credentialSubject": {
-    "id": "did:xrpl:rNAZAvNiqhmS3kCAuBXFUnsu6r5nYLacx3",
+    "id": "did:xrpl:rJPWS4cN46EfNE2Gxb1NUrLn1x3EYTPDK3",
     "type": "Prescription",
     "patientName": "Jane Doe",
     "patientId": "PAT-12345",
@@ -36,15 +36,15 @@
   },
   "proof": {
     "type": "Ed25519Signature2020",
-    "created": "2025-06-18T16:26:03.503Z",
-    "verificationMethod": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae#keys-1",
+    "created": "2025-06-20T13:22:46.424Z",
+    "verificationMethod": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa#keys-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "mock_signature_for_demo_purposes_only"
   },
   "credentialStatus": {
-    "id": "https://eudi-wallet.eu/status/c945fc34-5b79-484d-aa68-55263ff35916",
+    "id": "https://eudi-wallet.eu/status/c38e9133-25d8-4fc7-9312-7585e43b0bb7",
     "type": "StatusList2021Entry",
-    "statusListIndex": "urn:uuid:9ad6b5e8-c842-4643-9762-996874bbbc42",
-    "statusListCredential": "https://eudi-wallet.eu/status/c945fc34-5b79-484d-aa68-55263ff35916"
+    "statusListIndex": "urn:uuid:313d8776-e42e-4b7e-86c5-d666eb01e471",
+    "statusListCredential": "https://eudi-wallet.eu/status/c38e9133-25d8-4fc7-9312-7585e43b0bb7"
   }
 }

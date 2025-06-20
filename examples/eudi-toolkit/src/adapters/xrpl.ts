@@ -46,20 +46,88 @@ export class XRPLAdapter implements DIDDriver {
   private client: Client;
   private wallet?: Wallet;
   private connected: boolean = false;
+  private servers: string[];
+  private currentServerIndex: number = 0;
 
   constructor(config: XRPLAdapterConfig) {
-    this.client = new Client(config.server);
+    // Multiple server fallbacks for better reliability
+    this.servers = [
+      config.server,
+      'wss://s.altnet.rippletest.net:51233',
+      'wss://testnet.xrpl-labs.com',
+      'wss://s.devnet.rippletest.net:51233',
+    ];
+
+    // Start with the first server
+    this.client = new Client(this.servers[0]);
     this.wallet = config.wallet;
   }
 
   /**
-   * Connect to the XRPL
+   * Connect to the XRPL with fallback support and custom timeout
    */
   async connect(): Promise<void> {
     if (!this.connected) {
-      await this.client.connect();
-      this.connected = true;
-      console.log('Connected to XRPL');
+      let lastError: Error | null = null;
+
+      for (let i = 0; i < this.servers.length; i++) {
+        try {
+          console.log(
+            `Attempting to connect to XRPL server: ${
+              this.servers[this.currentServerIndex]
+            }`
+          );
+
+          // Create new client for the current server
+          this.client = new Client(this.servers[this.currentServerIndex]);
+
+          // Implement custom timeout using Promise.race
+          const connectPromise = this.client.connect();
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(
+              () => reject(new Error('Connection timeout after 20 seconds')),
+              20000
+            );
+          });
+
+          await Promise.race([connectPromise, timeoutPromise]);
+          this.connected = true;
+          console.log(
+            `Connected to XRPL server: ${this.servers[this.currentServerIndex]}`
+          );
+          return;
+        } catch (error: any) {
+          lastError = error;
+          console.warn(
+            `Failed to connect to ${this.servers[this.currentServerIndex]}: ${
+              error.message
+            }`
+          );
+
+          // Try to disconnect if partially connected
+          try {
+            if (this.client.isConnected()) {
+              await this.client.disconnect();
+            }
+          } catch (disconnectError) {
+            // Ignore disconnect errors
+          }
+
+          // Move to next server
+          this.currentServerIndex =
+            (this.currentServerIndex + 1) % this.servers.length;
+
+          // Wait a bit before trying the next server
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+
+      // If we get here, all servers failed
+      throw new Error(
+        `Failed to connect to any XRPL server. Last error: ${
+          lastError?.message || 'Unknown error'
+        }`
+      );
     }
   }
 

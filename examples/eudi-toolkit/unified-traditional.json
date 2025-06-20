@@ -5,50 +5,48 @@
     "https://w3id.org/security/suites/ed25519-2020/v1",
     "https://eudi-wallet.eu/contexts/driving-license/v1"
   ],
-  "id": "urn:uuid:68974a1f-7bae-4b47-b842-5454b1df981e",
+  "id": "urn:uuid:cf59845f-8eaa-4dd4-9dda-ea6d606f3e5e",
   "type": [
     "VerifiableCredential",
     "DrivingLicenseCredential"
   ],
   "issuer": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa",
-  "issuanceDate": "2025-06-20T13:22:14.431Z",
-  "expirationDate": "2030-06-18",
+  "issuanceDate": "2025-06-20T10:01:55.342Z",
+  "expirationDate": "2030-06-20",
   "credentialSubject": {
     "id": "did:xrpl:rJPWS4cN46EfNE2Gxb1NUrLn1x3EYTPDK3",
     "type": "DrivingLicense",
-    "firstName": "Jane",
-    "lastName": "Doe",
-    "dateOfBirth": "1990-01-01",
-    "placeOfBirth": "Berlin",
-    "issueDate": "2025-06-18",
-    "expiryDate": "2030-06-18",
+    "firstName": "Alice",
+    "lastName": "Smith",
+    "dateOfBirth": "1985-03-15",
+    "placeOfBirth": "Munich",
+    "issueDate": "2025-06-20",
+    "expiryDate": "2030-06-20",
     "issuingAuthority": "EU Driving Authority",
-    "licenseNumber": "DL-123456789",
+    "licenseNumber": "DL-987654321",
     "categories": [
-      "B",
-      "AM"
+      "A",
+      "B"
     ],
-    "restrictions": [
-      "Requires glasses"
-    ],
+    "restrictions": [],
     "address": {
-      "streetAddress": "123 Main Street",
-      "locality": "Berlin",
-      "postalCode": "10115",
+      "streetAddress": "456 Tech Street",
+      "locality": "Munich",
+      "postalCode": "80331",
       "country": "DE"
     }
   },
   "proof": {
     "type": "Ed25519Signature2020",
-    "created": "2025-06-20T13:22:14.432Z",
+    "created": "2025-06-20T10:01:55.342Z",
     "verificationMethod": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa#keys-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "mock_signature_for_demo_purposes_only"
   },
   "credentialStatus": {
-    "id": "https://eudi-wallet.eu/status/9bd018b2-b8df-46aa-b09c-156af10f51a4",
+    "id": "https://eudi-wallet.eu/status/61cd6a23-4363-4bfe-a5c4-4e24872e97d5",
     "type": "StatusList2021Entry",
-    "statusListIndex": "urn:uuid:babf13be-7497-4f5f-abdf-da9ffe22a295",
-    "statusListCredential": "https://eudi-wallet.eu/status/9bd018b2-b8df-46aa-b09c-156af10f51a4"
+    "statusListIndex": "urn:uuid:32818879-add0-4337-810f-ec109cd71342",
+    "statusListCredential": "https://eudi-wallet.eu/status/61cd6a23-4363-4bfe-a5c4-4e24872e97d5"
   }
 }

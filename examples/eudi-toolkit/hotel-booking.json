@@ -5,16 +5,16 @@
     "https://w3id.org/security/suites/ed25519-2020/v1",
     "https://eudi-wallet.eu/contexts/hotel-booking/v1"
   ],
-  "id": "urn:uuid:cbb86216-f306-4cfa-9493-d85fc0e0ecc2",
+  "id": "urn:uuid:4971328e-cc47-42d3-bde9-39bf177ccdba",
   "type": [
     "VerifiableCredential",
     "HotelBookingCredential"
   ],
-  "issuer": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae",
-  "issuanceDate": "2025-06-18T16:25:49.244Z",
+  "issuer": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa",
+  "issuanceDate": "2025-06-20T13:22:30.997Z",
   "expirationDate": "2026-07-07T18:13:19.000Z",
   "credentialSubject": {
-    "id": "did:xrpl:rNAZAvNiqhmS3kCAuBXFUnsu6r5nYLacx3",
+    "id": "did:xrpl:rJPWS4cN46EfNE2Gxb1NUrLn1x3EYTPDK3",
     "type": "HotelBooking",
     "bookingReference": "BK12345",
     "hotelName": "Grand Hotel Berlin",
@@ -27,15 +27,15 @@
   },
   "proof": {
     "type": "Ed25519Signature2020",
-    "created": "2025-06-18T16:25:49.244Z",
-    "verificationMethod": "did:xrpl:rUHwjRMnohpZXiW2H4S3CMDfLx1LjLtYae#keys-1",
+    "created": "2025-06-20T13:22:30.997Z",
+    "verificationMethod": "did:xrpl:rBX5GxEwpTL3RedR6U3L9YurNzozsygdfa#keys-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "mock_signature_for_demo_purposes_only"
   },
   "credentialStatus": {
-    "id": "https://eudi-wallet.eu/status/c9e01c57-d88a-4b62-8ff9-e6cee86092bf",
+    "id": "https://eudi-wallet.eu/status/9fb68bf6-23b4-4564-b475-7af75192cda4",
     "type": "StatusList2021Entry",
-    "statusListIndex": "urn:uuid:3361668a-049c-48e3-b51c-6e2d1df2eb81",
-    "statusListCredential": "https://eudi-wallet.eu/status/c9e01c57-d88a-4b62-8ff9-e6cee86092bf"
+    "statusListIndex": "urn:uuid:fb8605bc-6ef4-4f44-b856-24edd5c10d6a",
+    "statusListCredential": "https://eudi-wallet.eu/status/9fb68bf6-23b4-4564-b475-7af75192cda4"
   }
 }
