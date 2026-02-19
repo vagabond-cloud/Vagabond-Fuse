@@ -36,6 +36,7 @@ class Credential(BaseModel):
     credential_subject: Dict[str, Any]
     proof: Optional[Dict[str, Any]] = None
     status: Optional[Dict[str, str]] = None
+    anchor: Optional[Dict[str, Any]] = None
 
 
 class CredentialRequest(BaseModel):
@@ -65,13 +66,16 @@ class Proof(BaseModel):
     proof_type: ProofType
     proof_value: Dict[str, Any]
     public_inputs: List[str]
+    circuit_id: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.now)
+    anchor: Optional[Dict[str, Any]] = None
 
 
 class ProofResponse(BaseModel):
     proof_id: str
     proof: Dict[str, Any]
     public_inputs: List[str]
+    anchor: Optional[Dict[str, Any]] = None
 
 
 class VerificationCheck(BaseModel):
@@ -120,6 +124,33 @@ class StatsResponse(BaseModel):
     verified: int
     revoked: int
     timestamp: datetime = Field(default_factory=datetime.now)
+
+
+class WalletChallengeRequest(BaseModel):
+    wallet_address: str
+    chain: str = "eip155:1"
+
+
+class WalletChallengeResponse(BaseModel):
+    challenge_id: str
+    wallet_address: str
+    chain: str
+    message: str
+    expires_at: datetime
+
+
+class WalletVerifyRequest(BaseModel):
+    challenge_id: str
+    wallet_address: str
+    chain: str = "eip155:1"
+    signature: str
+
+
+class AuthTokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    expires_at: datetime
+    did: str
 
 
 # Policy models

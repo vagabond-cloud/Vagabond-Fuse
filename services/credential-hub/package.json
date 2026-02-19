@@ -1,0 +1,24 @@
+{
+    "name": "credential-hub-zkp",
+    "version": "1.0.0",
+    "description": "Node.js dependencies for ZK proof generation and verification",
+    "main": "index.js",
+    "scripts": {
+        "install": "npm install",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "snarkjs": "^0.7.4"
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    },
+    "keywords": [
+        "zkp",
+        "snarkjs",
+        "zero-knowledge",
+        "proof"
+    ],
+    "author": "FuseStream",
+    "license": "MIT"
+}

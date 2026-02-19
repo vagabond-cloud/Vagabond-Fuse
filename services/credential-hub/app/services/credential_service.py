@@ -1,10 +1,6 @@
-from typing import Dict, List, Optional, Any
-import json
+from typing import Dict, Optional, Any
 import uuid
 from datetime import datetime, timedelta
-import asyncio
-from pathlib import Path
-import os
 
 from app.models import (
     Credential,
@@ -24,21 +20,6 @@ class CredentialService:
         self._statuses: Dict[str, Status] = {}
         # Initialize the stats service for recording events
         self._stats_service = StatsService()
-        
-        # ClickHouse configuration
-        self.clickhouse_config = {
-            "host": os.environ.get("CLICKHOUSE_HOST", "localhost"),
-            "port": int(os.environ.get("CLICKHOUSE_PORT", "8123")),
-            "username": os.environ.get("CLICKHOUSE_USER", "default"),
-            "database": os.environ.get("CLICKHOUSE_DATABASE", "credential_hub")
-        }
-        
-        # Only add password if it's provided
-        password = os.environ.get("CLICKHOUSE_PASSWORD", "")
-        if password:
-            self.clickhouse_config["password"] = password
-            
-        print(f"Initializing CredentialService with ClickHouse config: {self.clickhouse_config}")
 
     async def issue(
         self,
@@ -113,38 +94,14 @@ class CredentialService:
             timestamp=datetime.now(),
         )
         
-        # Record the issuance event directly in ClickHouse
-        try:
-            import clickhouse_connect
-            client = clickhouse_connect.get_client(**self.clickhouse_config)
-            client.insert(
-                "credential_events",
-                [[
-                    "issue",                   # event_type
-                    credential_id,             # credential_id
-                    subject_id,                # subject_id
-                    issuer_id,                 # issuer_id
-                    datetime.now(),            # timestamp
-                    "success",                 # result
-                    "",                        # details
-                    "{}"                       # metadata
-                ]],
-                column_names=[
-                    "event_type",
-                    "credential_id",
-                    "subject_id",
-                    "issuer_id",
-                    "timestamp",
-                    "result",
-                    "details",
-                    "metadata"
-                ]
-            )
-            print(f"Recorded issue event for credential {credential_id}")
-        except Exception as e:
-            print(f"Error recording issue event to ClickHouse: {str(e)}")
-            import traceback
-            print(f"Traceback: {traceback.format_exc()}")
+        await self._stats_service.record_event(
+            event_type="issue",
+            credential_id=credential_id,
+            subject_id=subject_id,
+            issuer_id=issuer_id,
+            result="success",
+            details="",
+        )
         
         return credential
 
@@ -163,38 +120,12 @@ class CredentialService:
             # Look up the credential
             credential = self._credentials.get(credential_id)
             if not credential:
-                # Record the failed verification event directly in ClickHouse
-                try:
-                    import clickhouse_connect
-                    client = clickhouse_connect.get_client(**self.clickhouse_config)
-                    client.insert(
-                        "credential_events",
-                        [[
-                            "verify",                  # event_type
-                            credential_id,             # credential_id
-                            "",                        # subject_id
-                            "",                        # issuer_id
-                            datetime.now(),            # timestamp
-                            "failure",                 # result
-                            "Credential not found",    # details
-                            "{}"                       # metadata
-                        ]],
-                        column_names=[
-                            "event_type",
-                            "credential_id",
-                            "subject_id",
-                            "issuer_id",
-                            "timestamp",
-                            "result",
-                            "details",
-                            "metadata"
-                        ]
-                    )
-                    print(f"Recorded failed verify event for credential {credential_id}")
-                except Exception as e:
-                    print(f"Error recording verify event to ClickHouse: {str(e)}")
-                    import traceback
-                    print(f"Traceback: {traceback.format_exc()}")
+                await self._stats_service.record_event(
+                    event_type="verify",
+                    credential_id=credential_id,
+                    result="failure",
+                    details="Credential not found",
+                )
                 
                 return VerificationResult(
                     is_valid=False,
@@ -230,38 +161,14 @@ class CredentialService:
         # Overall validity
         is_valid = all(check.status for check in checks)
         
-        # Record the verification event directly in ClickHouse
-        try:
-            import clickhouse_connect
-            client = clickhouse_connect.get_client(**self.clickhouse_config)
-            client.insert(
-                "credential_events",
-                [[
-                    "verify",                                          # event_type
-                    cred_id,                                           # credential_id
-                    credential.credential_subject.get("id", ""),       # subject_id
-                    credential.issuer,                                 # issuer_id
-                    datetime.now(),                                    # timestamp
-                    "success" if is_valid else "failure",              # result
-                    ", ".join(errors) if errors else "All checks passed", # details
-                    "{}"                                               # metadata
-                ]],
-                column_names=[
-                    "event_type",
-                    "credential_id",
-                    "subject_id",
-                    "issuer_id",
-                    "timestamp",
-                    "result",
-                    "details",
-                    "metadata"
-                ]
-            )
-            print(f"Recorded verify event for credential {cred_id}")
-        except Exception as e:
-            print(f"Error recording verify event to ClickHouse: {str(e)}")
-            import traceback
-            print(f"Traceback: {traceback.format_exc()}")
+        await self._stats_service.record_event(
+            event_type="verify",
+            credential_id=cred_id,
+            subject_id=credential.credential_subject.get("id", ""),
+            issuer_id=credential.issuer,
+            result="success" if is_valid else "failure",
+            details=", ".join(errors) if errors else "All checks passed",
+        )
         
         return VerificationResult(
             is_valid=is_valid,
@@ -288,38 +195,24 @@ class CredentialService:
             timestamp=datetime.now(),
         )
         
-        # Record the revocation event directly in ClickHouse
-        try:
-            import clickhouse_connect
-            client = clickhouse_connect.get_client(**self.clickhouse_config)
-            client.insert(
-                "credential_events",
-                [[
-                    "revoke",                                          # event_type
-                    credential_id,                                     # credential_id
-                    self._credentials[credential_id].credential_subject.get("id", ""), # subject_id
-                    self._credentials[credential_id].issuer,           # issuer_id
-                    datetime.now(),                                    # timestamp
-                    "success",                                         # result
-                    reason,                                            # details
-                    "{}"                                               # metadata
-                ]],
-                column_names=[
-                    "event_type",
-                    "credential_id",
-                    "subject_id",
-                    "issuer_id",
-                    "timestamp",
-                    "result",
-                    "details",
-                    "metadata"
-                ]
-            )
-            print(f"Recorded revoke event for credential {credential_id}")
-        except Exception as e:
-            print(f"Error recording revoke event to ClickHouse: {str(e)}")
-            import traceback
-            print(f"Traceback: {traceback.format_exc()}")
+        await self._stats_service.record_event(
+            event_type="revoke",
+            credential_id=credential_id,
+            subject_id=self._credentials[credential_id].credential_subject.get("id", ""),
+            issuer_id=self._credentials[credential_id].issuer,
+            result="success",
+            details=reason,
+        )
+
+    async def set_credential_anchor(
+        self, credential_id: str, anchor: Dict[str, Any]
+    ) -> None:
+        """Attach anchor metadata to a credential."""
+        credential = self._credentials.get(credential_id)
+        if not credential:
+            raise ValueError(f"Credential {credential_id} not found")
+        credential.anchor = anchor
+        self._credentials[credential_id] = credential
 
     def _check_expiration(self, credential: Credential) -> VerificationCheck:
         """Check if the credential has expired"""

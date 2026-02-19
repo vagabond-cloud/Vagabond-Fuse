@@ -4,11 +4,15 @@ FastAPI service for credential management with SnarkJS integration.
 
 ## Getting Started
 
-1. Install dependencies:
+### Quick Setup
+
+1. Run the automated setup script:
 
 ```bash
-poetry install
+./setup.sh
 ```
+
+This will check prerequisites, install dependencies, and prepare the environment.
 
 2. Set up ClickHouse for statistics:
 
@@ -32,13 +36,33 @@ poetry run uvicorn app.main:app --port 8001 --reload
 http://localhost:8001/api/docs
 ```
 
+### Manual Setup
+
+1. Install Node.js dependencies (for SnarkJS):
+
+```bash
+npm install
+```
+
+2. Install Python dependencies:
+
+```bash
+poetry install
+```
+
+3. Continue with steps 2-4 above.
+
 ## Features
 
 - Verifiable Credential issuance and verification
-- ZKP generation and verification via SnarkJS
+- **Production-ready ZKP generation and verification via SnarkJS**
 - Credential status management
 - DID resolution integration
 - Credential statistics via ClickHouse
+- Circuit discovery and management
+- Comprehensive validation and error handling
+
+**🆕 Production-Ready Proof Service**: The proof logic has been upgraded from placeholder implementation to a fully functional, cryptographically secure service using SnarkJS with Groth16 protocol. See [PROOF_SERVICE.md](./PROOF_SERVICE.md) for detailed documentation.
 
 ## Development
 
@@ -80,8 +104,18 @@ poetry run pytest
 
 ### Proofs
 
-- `POST /proofs/generate` - Generate a zero-knowledge proof
-- `POST /proofs/verify` - Verify a proof
+- `POST /proofs/generate` - Generate a zero-knowledge proof for selective disclosure
+- `POST /proofs/verify` - Verify a zero-knowledge proof cryptographically
+- `GET /circuits` - List available ZK circuits
+
+**Production Features:**
+
+- Real SnarkJS integration with Groth16 protocol
+- Dynamic circuit discovery and registration
+- Comprehensive input validation and error handling
+- Asynchronous operations with timeout protection
+- Detailed verification checks (structure, cryptographic, inputs)
+- Automatic cleanup of temporary files
 
 ### Policies
 

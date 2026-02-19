@@ -1,12 +1,11 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi.responses import JSONResponse
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from typing import Dict, List, Optional, Any
-import json
-import asyncio
-import subprocess
-from pathlib import Path
+import logging
 from contextlib import asynccontextmanager
+from datetime import datetime
 
 from app.models import (
     Credential,
@@ -18,6 +17,10 @@ from app.models import (
     VerificationResponse,
     StatusResponse,
     StatsResponse,
+    WalletChallengeRequest,
+    WalletChallengeResponse,
+    WalletVerifyRequest,
+    AuthTokenResponse,
     # Policy models
     Policy,
     PolicyRequest,
@@ -30,19 +33,49 @@ from app.services.credential_service import CredentialService
 from app.services.proof_service import ProofService
 from app.services.stats_service import StatsService
 from app.services.policy_service import PolicyService
+from app.services.auth_service import AuthService
+from app.services.anchor_service import AnchorService
+from app.database import init_database, close_database
+from app.config import get_settings
+
+# Initialize logger
+logger = logging.getLogger(__name__)
+
+# Get settings
+settings = get_settings()
 
 # Initialize services
 credential_service = CredentialService()
-proof_service = ProofService()
 stats_service = StatsService()
 policy_service = PolicyService()
+auth_service = AuthService()
+anchor_service = AnchorService()
+
+# Initialize proof service with production settings
+proof_service = ProofService(
+    circuits_dir=settings.circuits_dir,
+    node_path=settings.node_path,
+    postgres_dsn=settings.postgres_dsn,
+    redis_url=settings.redis_url,
+    max_pool_size=settings.database_pool_size,
+    proof_cache_ttl=settings.proof_cache_ttl,
+    rate_limit_per_minute=settings.rate_limit_per_minute
+)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: nothing to do
+    # Startup: Initialize database and proof service
+    await init_database()
+    await proof_service.initialize()
+    logger.info("Application startup complete")
+    
     yield
+    
     # Shutdown: close connections
+    await proof_service.close()
     await stats_service.close()
+    await close_database()
+    logger.info("Application shutdown complete")
 
 app = FastAPI(
     title="Credential Hub",
@@ -63,6 +96,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+auth_scheme = HTTPBearer(auto_error=False)
+
+
+def require_auth(
+    credentials: HTTPAuthorizationCredentials = Depends(auth_scheme),
+) -> Dict[str, Any]:
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing bearer token",
+        )
+    try:
+        return auth_service.verify_token(credentials.credentials)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)
+        ) from exc
+
 
 @app.get("/")
 async def root() -> Dict[str, str]:
@@ -70,17 +121,45 @@ async def root() -> Dict[str, str]:
     return {"message": "Welcome to Credential Hub API"}
 
 
-@app.get("/health")
-async def health_check() -> Dict[str, str]:
-    """Health check endpoint"""
-    return {"status": "healthy", "service": "credential-hub"}
+@app.post("/auth/challenge", response_model=WalletChallengeResponse)
+async def create_auth_challenge(
+    request: WalletChallengeRequest,
+) -> WalletChallengeResponse:
+    """Create a wallet signature challenge."""
+    try:
+        return auth_service.create_challenge(request.wallet_address, request.chain)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to create challenge: {str(e)}",
+        )
+
+
+@app.post("/auth/verify", response_model=AuthTokenResponse)
+async def verify_auth_challenge(request: WalletVerifyRequest) -> AuthTokenResponse:
+    """Verify wallet signature and return access token."""
+    try:
+        return auth_service.verify_challenge_and_issue_token(
+            challenge_id=request.challenge_id,
+            wallet_address=request.wallet_address,
+            chain=request.chain,
+            signature=request.signature,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Authentication failed: {str(e)}",
+        )
 
 
 @app.post("/credentials/issue", response_model=CredentialResponse)
-async def issue_credential(request: CredentialRequest) -> CredentialResponse:
+async def issue_credential(
+    request: CredentialRequest,
+    auth_claims: Dict[str, Any] = Depends(require_auth),
+) -> CredentialResponse:
     """Issue a new verifiable credential"""
     try:
-        print(f"Issuing credential with subject_id: {request.subject_id}")
+        logger.info("Issuing credential for subject_id=%s", request.subject_id)
         credential = await credential_service.issue(
             subject_id=request.subject_id,
             issuer_id=request.issuer_id,
@@ -88,14 +167,22 @@ async def issue_credential(request: CredentialRequest) -> CredentialResponse:
             proof_type=request.proof_type,
             expiration_date=request.expiration_date,
         )
-        print(f"Credential issued with ID: {credential.id}")
+        anchor = await anchor_service.anchor_payload(
+            entity_type="credential",
+            entity_id=credential.id,
+            payload=credential.model_dump(mode="json"),
+            wallet_did=auth_claims.get("sub"),
+        )
+        await credential_service.set_credential_anchor(credential.id, anchor)
+        credential.anchor = anchor
+        logger.info("Issued credential_id=%s", credential.id)
         return CredentialResponse(
             credential_id=credential.id,
             credential=credential,
             message="Credential issued successfully",
         )
     except Exception as e:
-        print(f"Error issuing credential: {e}")
+        logger.exception("Error issuing credential")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Failed to issue credential: {str(e)}",
@@ -123,7 +210,10 @@ async def verify_credential(request: VerificationRequest) -> VerificationRespons
 
 
 @app.post("/proofs/generate", response_model=ProofResponse)
-async def generate_proof(request: ProofRequest) -> ProofResponse:
+async def generate_proof(
+    request: ProofRequest,
+    auth_claims: Dict[str, Any] = Depends(require_auth),
+) -> ProofResponse:
     """Generate a zero-knowledge proof"""
     try:
         proof = await proof_service.generate(
@@ -131,10 +221,19 @@ async def generate_proof(request: ProofRequest) -> ProofResponse:
             reveal_attributes=request.reveal_attributes,
             circuit_id=request.circuit_id,
         )
+        anchor = await anchor_service.anchor_payload(
+            entity_type="proof",
+            entity_id=proof.id,
+            payload=proof.model_dump(mode="json"),
+            wallet_did=auth_claims.get("sub"),
+        )
+        await proof_service.set_proof_anchor(proof.id, anchor)
+        proof.anchor = anchor
         return ProofResponse(
             proof_id=proof.id,
             proof=proof.proof_value,
             public_inputs=proof.public_inputs,
+            anchor=anchor,
         )
     except Exception as e:
         raise HTTPException(
@@ -144,7 +243,10 @@ async def generate_proof(request: ProofRequest) -> ProofResponse:
 
 
 @app.post("/proofs/verify", response_model=VerificationResponse)
-async def verify_proof(request: VerificationRequest) -> VerificationResponse:
+async def verify_proof(
+    request: VerificationRequest,
+    _auth_claims: Dict[str, Any] = Depends(require_auth),
+) -> VerificationResponse:
     """Verify a zero-knowledge proof"""
     try:
         verification_result = await proof_service.verify(
@@ -184,7 +286,11 @@ async def get_credential_status(credential_id: str) -> StatusResponse:
 
 
 @app.post("/credentials/{credential_id}/revoke")
-async def revoke_credential(credential_id: str, reason: str = "Revoked by issuer") -> Dict[str, str]:
+async def revoke_credential(
+    credential_id: str,
+    reason: str = "Revoked by issuer",
+    _auth_claims: Dict[str, Any] = Depends(require_auth),
+) -> Dict[str, str]:
     """Revoke a credential"""
     try:
         await credential_service.revoke(credential_id, reason)
@@ -211,6 +317,84 @@ async def get_stats() -> StatsResponse:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve credential stats: {str(e)}",
+        )
+
+
+@app.get("/health")
+async def health_check():
+    """
+    Health check endpoint for monitoring and load balancers
+    """
+    try:
+        from app.database import get_db_manager
+        from app.monitoring import init_monitoring
+        
+        db_manager = get_db_manager()
+        _, _, health_checker = init_monitoring(db_manager, proof_service)
+        
+        if health_checker:
+            health_status = await health_checker.check_health()
+            
+            if health_status['status'] == 'healthy':
+                return health_status
+            elif health_status['status'] == 'degraded':
+                return JSONResponse(
+                    status_code=200,
+                    content=health_status
+                )
+            else:
+                return JSONResponse(
+                    status_code=503,
+                    content=health_status
+                )
+        else:
+            return {"status": "healthy", "message": "Basic health check passed"}
+            
+    except Exception as e:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "unhealthy",
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+        )
+
+
+@app.get("/metrics/proofs")
+async def get_proof_metrics():
+    """
+    Get proof service performance metrics
+    """
+    try:
+        stats = await proof_service.get_proof_statistics()
+        return {
+            "proof_statistics": stats,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve proof metrics: {str(e)}"
+        )
+
+
+@app.get("/circuits")
+async def list_available_circuits():
+    """
+    List all available circuits and their status
+    """
+    try:
+        circuits = await proof_service.list_circuits()
+        return {
+            "circuits": circuits,
+            "count": len(circuits),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to list circuits: {str(e)}"
         )
 
 
