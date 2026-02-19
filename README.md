@@ -1,6 +1,6 @@
 # Vagabond-Fuse: Cross-Chain Self-Sovereign Identity Fabric
 
-Vagabond-Fuse is a comprehensive framework for building decentralized identity solutions using the XRP Ledger. It provides a suite of components for managing DIDs, verifiable credentials, and access policies in a secure and interoperable manner.
+Vagabond-Fuse is a monorepo for decentralized identity systems. It provides DID, credential, proof, policy, wallet, and anchoring capabilities across TypeScript packages and Python services.
 
 ## Overview
 
@@ -8,18 +8,20 @@ Vagabond-Fuse enables developers to build applications that leverage decentraliz
 
 ### Key Components
 
-- **DID Gateway**: Manages DIDs on the XRP Ledger
-- **Credential Hub**: Issues and verifies credentials
-- **Policy Engine**: Enforces access control policies
-- **Wallet Kit**: Connects to XRPL wallets
+- **DID Gateway**: Method-agnostic DID operations (`did:ion`, `did:polygon`, `did:xrpl`)
+- **Credential Hub**: Credential issuance/verification, ZK proofs, stats, policy routes, wallet auth, and anchoring metadata
+- **Policy Engine**: Standalone policy CRUD/evaluation service with OPA WASM support
+- **Wallet Kit**: Wallet adapters and transaction-signing abstractions
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18 or higher
-- npm or pnpm
-- Access to XRPL (Testnet, Devnet, or Mainnet)
+- Node.js 18+
+- `pnpm`
+- Python 3.11+
+- Poetry
+- Optional: Docker (for local ClickHouse/Redis/Postgres workflows)
 
 ### Installation
 
@@ -35,18 +37,21 @@ pnpm install
 ### Running the Services
 
 ```bash
-# Start the DID Gateway
-cd packages/did-gateway
-pnpm start
+# Install workspace dependencies
+pnpm install
 
-# Start the Credential Hub
+# Credential Hub (FastAPI)
 cd services/credential-hub
-pnpm start
+poetry install
+poetry run uvicorn app.main:app --port 8001 --reload
 
-# Start the Policy Engine
+# Policy Engine (FastAPI)
 cd services/policy-engine
-pnpm start
+poetry install
+poetry run uvicorn app.main:app --port 8002 --reload
 ```
+
+Credential Hub OpenAPI docs: `http://localhost:8001/api/docs`
 
 ## Example Applications
 
@@ -64,12 +69,13 @@ For more details, see the [Identity Verifier README](examples/identity-verifier/
 
 ## Architecture
 
-Vagabond-Fuse follows a modular architecture with the following layers:
+Vagabond-Fuse follows a modular architecture:
 
-1. **Storage Layer**: XRPL for DID operations and credential anchoring
-2. **Protocol Layer**: Implementation of W3C DID and VC standards
-3. **Service Layer**: DID Gateway, Credential Hub, and Policy Engine
-4. **Application Layer**: Example applications and integration points
+1. **Identity layer**: DID methods and DID gateway drivers
+2. **Wallet layer**: signing adapters and payment/trustline helpers
+3. **Service layer**: Credential Hub + Policy Engine APIs
+4. **Data layer**: PostgreSQL, Redis, ClickHouse, and optional external anchor endpoint
+5. **Application layer**: examples and integration scripts
 
 ## Development
 
@@ -108,6 +114,24 @@ pnpm test
 pnpm --filter @vagabond-fuse/did-gateway test
 ```
 
+Service tests:
+
+```bash
+cd services/credential-hub && poetry run pytest
+cd services/policy-engine && poetry run pytest
+```
+
+## Web3 Auth and Anchoring
+
+Credential Hub includes:
+
+- `POST /auth/challenge`: create wallet-signature challenge
+- `POST /auth/verify`: verify signature and issue JWT
+- Protected routes for issue/revoke/generate-proof/verify-proof
+- Payload anchoring metadata for issued credentials and generated proofs
+
+For complete endpoint and flow documentation, see `FULL_CODEBASE_DOCUMENTATION.md`.
+
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
@@ -126,7 +150,9 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Documentation
 
-For detailed documentation, see the [DOCS.md](DOCS.md) file or visit the [documentation site](https://docs.vagabond-fuse.example).
+- High-level docs: [DOCS.md](DOCS.md)
+- Full technical map: [FULL_CODEBASE_DOCUMENTATION.md](FULL_CODEBASE_DOCUMENTATION.md)
+- Release history: [CHANGELOG.md](CHANGELOG.md)
 
 ## Support
 
