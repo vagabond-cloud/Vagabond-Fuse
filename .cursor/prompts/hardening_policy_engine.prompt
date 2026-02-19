@@ -1,7 +1,0 @@
-Objective: integrate OPA WASM into Python policy-engine.
-
-Steps:
-1. Compile sample GDPR rule (rego) → wasm, commit to services/policy-engine/opa/.
-2. In `policy_engine/evaluator.py` implement evaluate_credential(input_json) → { allow, reasons } by loading WASM with wasmtime.
-3. Migrate JSON-Logic test vectors from TS to Pytest parametrised cases.
-4. Achieve ≥ 90 % Py coverage, no TS coverage drop.
